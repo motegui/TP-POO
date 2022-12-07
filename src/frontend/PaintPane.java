@@ -43,13 +43,16 @@ public class PaintPane extends BorderPane {
 	public PaintPane(CanvasState canvasState, StatusPane statusPane) {
 		this.canvasState = canvasState;
 		this.statusPane = statusPane;
+
+		//estilo de los botones
 		ToggleButton[] toolsArr = {selectionButton, rectangleButton, circleButton, squareButton, ellipseButton, deleteButton};
 		ToggleGroup tools = new ToggleGroup();
-		for (ToggleButton tool : toolsArr) {
+		for (ToggleButton tool : toolsArr) { //itera por los botones para setear su tamaño
 			tool.setMinWidth(90);
 			tool.setToggleGroup(tools);
 			tool.setCursor(Cursor.HAND);
 		}
+		//crea un nuevo layout con todos los botones de forma vertical a la izq uno abajo del otro
 		VBox buttonsBox = new VBox(10);
 		buttonsBox.getChildren().addAll(toolsArr);
 		buttonsBox.setPadding(new Insets(5));
@@ -157,7 +160,7 @@ public class PaintPane extends BorderPane {
 					ellipse.getCenterPoint().x += diffX;
 					ellipse.getCenterPoint().y += diffY;
 				}
-				redrawCanvas();
+				redrawCanvas(); //vuelve a imprimir toda la pantalla
 			}
 		});
 
@@ -172,9 +175,10 @@ public class PaintPane extends BorderPane {
 		setLeft(buttonsBox);
 		setRight(canvas);
 	}
-
+	//metodo que sirve para actualizar el canvas con los cambios realizados hasta el momento
 	void redrawCanvas() {
 		gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
+		//for each para recorrer todas las figuras en la lista del canvasState
 		for(Figure figure : canvasState.figures()) {
 			if(figure == selectedFigure) {
 				gc.setStroke(Color.RED);
@@ -205,6 +209,7 @@ public class PaintPane extends BorderPane {
 				gc.fillOval(ellipse.getCenterPoint().getX() - (ellipse.getsMayorAxis() / 2), ellipse.getCenterPoint().getY() - (ellipse.getsMinorAxis() / 2), ellipse.getsMayorAxis(), ellipse.getsMinorAxis());
 			}
 		}
+		//no se puede usar el instanceof y ademas esta muy iterativo
 	}
 
 	boolean figureBelongs(Figure figure, Point eventPoint) {
