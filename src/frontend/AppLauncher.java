@@ -9,6 +9,7 @@ public class AppLauncher extends Application {
 
 	public static void main(String[] args) {
 		launch(args);
+		System.out.println("fede");
 	}
 
 	@Override
