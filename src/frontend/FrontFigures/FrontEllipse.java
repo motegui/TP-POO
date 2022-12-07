@@ -10,7 +10,7 @@ public class FrontEllipse extends FrontFigure{
     Ellipse ellipse;
     public FrontEllipse(Figure figure, GraphicsContext gc) {
         super(figure, gc);
-        this.ellipse = (Ellipse) figure;
+        this.ellipse = (Ellipse) super.getFigure();
     }
 
     //super

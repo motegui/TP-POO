@@ -10,12 +10,11 @@ public class FrontRectangle extends FrontFigure {
     Rectangle rect;
     public FrontRectangle(Figure figure, GraphicsContext gc) {
         super(figure, gc);
-        Rectangle rect = (Rectangle) figure;
+        rect = (Rectangle) super.getFigure();
     }
 
     @Override
     public void fill() {
-        Rectangle rect = (Rectangle) super.getFigure();
         super.getGc().fillRect(rect.getTopLeft().getX(), rect.getTopLeft().getY(),
                 Math.abs(rect.getTopLeft().getX() - rect.getBottomRight().getX()), Math.abs(rect.getTopLeft().getY() - rect.getBottomRight().getY()));
     }

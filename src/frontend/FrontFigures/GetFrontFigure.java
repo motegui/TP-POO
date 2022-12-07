@@ -1,14 +1,19 @@
 package frontend.FrontFigures;
 
-import backend.model.Figure;
-import backend.model.Rectangle;
+import backend.model.*;
 import javafx.scene.canvas.GraphicsContext;
 
 public class GetFrontFigure {
-    
-    
-    public FrontRectangle getFrontRectangle(Figure fig, GraphicsContext gc){ return new FrontRectangle(fig,gc);}
-    public FrontEllipse getFrontEllipse(Figure fig, GraphicsContext gc){ return new FrontEllipse(fig,gc);}
-    public FrontSquare getFrontSquare(Figure fig, GraphicsContext gc){ return new FrontSquare(fig,gc);}
-    public FrontCircle getFrontCircle(Figure fig, GraphicsContext gc){ return new FrontCircle(fig,gc);}
+
+    public static FrontFigure get(Figure figure, GraphicsContext gc){
+        if (figure instanceof Rectangle)
+            return new FrontRectangle(figure,gc);
+        else if (figure instanceof Ellipse)
+            return new FrontEllipse(figure, gc);
+        else if (figure instanceof Square)
+            return new FrontSquare(figure, gc);
+        else if (figure instanceof Circle)
+            return new FrontCircle(figure ,gc);
+        return null;
+    }
 }

@@ -11,7 +11,7 @@ public class FrontCircle extends FrontEllipse{
     double diameter;
     public FrontCircle(Figure figure, GraphicsContext gc) {
         super(figure, gc);
-        this.circle = (Circle) figure;
+        this.circle = (Circle) super.getFigure();
         this.diameter = circle.getRadius() * 2;
     }
     public void fill() {

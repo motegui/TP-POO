@@ -6,6 +6,7 @@ import backend.model.*;
 import frontend.FrontFigures.FrontCircle;
 import frontend.FrontFigures.FrontFigure;
 import frontend.FrontFigures.FrontRectangle;
+import frontend.FrontFigures.GetFrontFigure;
 import javafx.geometry.Insets;
 import javafx.scene.Cursor;
 import javafx.scene.canvas.Canvas;
@@ -190,32 +191,10 @@ public class PaintPane extends BorderPane {
 				gc.setStroke(lineColor);
 			}
 			gc.setFill(fillColor);
-//			FrontFigure newFigure = new FrontCircle(figure, gc);
-//			newFigure.fill();
-//			newFigure.stroke();
+			FrontFigure newFigure = new GetFrontFigure().get(figure,gc);
+			newFigure.fill();
+			newFigure.stroke();
 
-			if(figure instanceof Rectangle) {
-				Rectangle rectangle = (Rectangle) figure;
-				gc.fillRect(rectangle.getTopLeft().getX(), rectangle.getTopLeft().getY(),
-						Math.abs(rectangle.getTopLeft().getX() - rectangle.getBottomRight().getX()), Math.abs(rectangle.getTopLeft().getY() - rectangle.getBottomRight().getY()));
-				gc.strokeRect(rectangle.getTopLeft().getX(), rectangle.getTopLeft().getY(),
-						Math.abs(rectangle.getTopLeft().getX() - rectangle.getBottomRight().getX()), Math.abs(rectangle.getTopLeft().getY() - rectangle.getBottomRight().getY()));
-			} else if(figure instanceof Circle) {
-				Circle circle = (Circle) figure;
-				double diameter = circle.getRadius() * 2;
-				gc.fillOval(circle.getCenterPoint().getX() - circle.getRadius(), circle.getCenterPoint().getY() - circle.getRadius(), diameter, diameter);
-				gc.strokeOval(circle.getCenterPoint().getX() - circle.getRadius(), circle.getCenterPoint().getY() - circle.getRadius(), diameter, diameter);
-			} else if(figure instanceof Square) {
-				Square square = (Square) figure;
-				gc.fillRect(square.getTopLeft().getX(), square.getTopLeft().getY(),
-						Math.abs(square.getTopLeft().getX() - square.getBottomRight().getX()), Math.abs(square.getTopLeft().getY() - square.getBottomRight().getY()));
-				gc.strokeRect(square.getTopLeft().getX(), square.getTopLeft().getY(),
-						Math.abs(square.getTopLeft().getX() - square.getBottomRight().getX()), Math.abs(square.getTopLeft().getY() - square.getBottomRight().getY()));
-			} else if(figure instanceof Ellipse) {
-				Ellipse ellipse = (Ellipse) figure;
-				gc.strokeOval(ellipse.getCenterPoint().getX() - (ellipse.getsMayorAxis() / 2), ellipse.getCenterPoint().getY() - (ellipse.getsMinorAxis() / 2), ellipse.getsMayorAxis(), ellipse.getsMinorAxis());
-				gc.fillOval(ellipse.getCenterPoint().getX() - (ellipse.getsMayorAxis() / 2), ellipse.getCenterPoint().getY() - (ellipse.getsMinorAxis() / 2), ellipse.getsMayorAxis(), ellipse.getsMinorAxis());
-			}
 		}
 		//no se puede usar el instanceof y ademas esta muy iterativo
 	}

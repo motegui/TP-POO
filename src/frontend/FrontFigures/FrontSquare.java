@@ -10,7 +10,7 @@ public class FrontSquare extends FrontRectangle{
     double diameter;
     public FrontSquare(Figure figure, GraphicsContext gc) {
         super(figure, gc);
-        this.square = (Square) figure;
+        this.square = (Square) super.getFigure();
     }
     @Override
     public void fill() {
