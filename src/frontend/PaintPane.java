@@ -74,9 +74,10 @@ public class PaintPane extends BorderPane {
 			if(startPoint == null) {
 				return ;
 			}
-			if(endPoint.getX() < startPoint.getX() || endPoint.getY() < startPoint.getY()) {
-				return ;
-			}
+//			if(endPoint.getX() < startPoint.getX() || endPoint.getY() < startPoint.getY()) {
+//				return ;
+//			}
+			//ahora se puede dragear de derecha a izquierda y al reves.
 			Figure newFigure = null;
 			if(rectangleButton.isSelected()) {
 				newFigure = new Rectangle(startPoint, endPoint);
@@ -184,8 +185,8 @@ public class PaintPane extends BorderPane {
 	void redrawCanvas() {
 		gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
 		//for each para recorrer todas las figuras en la lista del canvasState
-		for(Figure figure : canvasState.figures()) {
-			if(figure == selectedFigure) {
+		for (Figure figure : canvasState.figures()) {
+			if (figure == selectedFigure) {
 				gc.setStroke(Color.RED);
 			} else {
 				gc.setStroke(lineColor);
@@ -196,7 +197,8 @@ public class PaintPane extends BorderPane {
 			newFigure.stroke();
 
 		}
-		//no se puede usar el instanceof y ademas esta muy iterativo
+			//no se puede usar el instanceof y ademas esta muy iterativo
+
 	}
 
 	boolean figureBelongs(Figure figure, Point eventPoint) {
