@@ -21,7 +21,6 @@ public class FrontRectangle extends FrontFigure {
 
     @Override
     public void stroke() {
-        if (rect != null)
             super.getGc().strokeRect(rect.getTopLeft().getX(), rect.getTopLeft().getY(),
                 Math.abs(rect.getTopLeft().getX() - rect.getBottomRight().getX()), Math.abs(rect.getTopLeft().getY() - rect.getBottomRight().getY()));
     }
