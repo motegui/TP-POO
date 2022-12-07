@@ -1,4 +1,29 @@
 package frontend.FrontFigures;
 
-public class FrontRectangle {
+import backend.model.Figure;
+import backend.model.Rectangle;
+import javafx.scene.canvas.GraphicsContext;
+
+import java.awt.*;
+
+public class FrontRectangle extends FrontFigure {
+    Rectangle rect;
+    public FrontRectangle(Figure figure, GraphicsContext gc) {
+        super(figure, gc);
+        Rectangle rect = (Rectangle) figure;
+    }
+
+    @Override
+    public void fill() {
+        Rectangle rect = (Rectangle) super.getFigure();
+        super.getGc().fillRect(rect.getTopLeft().getX(), rect.getTopLeft().getY(),
+                Math.abs(rect.getTopLeft().getX() - rect.getBottomRight().getX()), Math.abs(rect.getTopLeft().getY() - rect.getBottomRight().getY()));
+    }
+
+    @Override
+    public void stroke() {
+        if (rect != null)
+            super.getGc().strokeRect(rect.getTopLeft().getX(), rect.getTopLeft().getY(),
+                Math.abs(rect.getTopLeft().getX() - rect.getBottomRight().getX()), Math.abs(rect.getTopLeft().getY() - rect.getBottomRight().getY()));
+    }
 }

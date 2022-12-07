@@ -2,6 +2,7 @@ package frontend;
 
 import backend.CanvasState;
 import backend.model.*;
+//import frontend.FrontFigures.GetFrontFigure;
 import frontend.FrontFigures.FrontFigure;
 import javafx.geometry.Insets;
 import javafx.scene.Cursor;
@@ -177,19 +178,17 @@ public class PaintPane extends BorderPane {
 		setRight(canvas);
 	}
 	//metodo que sirve para actualizar el canvas con los cambios realizados hasta el momento
-	void redrawCanvas() {
+	<T extends FrontFigure> void redrawCanvas() {
 		gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
 		//for each para recorrer todas las figuras en la lista del canvasState
 		for(Figure figure : canvasState.figures()) {
 			if(figure == selectedFigure) {
 				gc.setStroke(Color.RED);
 			} else {
-				// si la figura no es la seleccionada , el borde es del color de default o el seteado por el user
 				gc.setStroke(lineColor);
 			}
-			gc.setFill(figure.getFillColor());
-			figure.fill(gc);
-			figure.stroke(gc);
+			gc.setFill(fillColor);
+		}
 		//no se puede usar el instanceof y ademas esta muy iterativo
 	}
 

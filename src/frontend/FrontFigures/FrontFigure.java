@@ -1,6 +1,7 @@
 package frontend.FrontFigures;
 
 import backend.model.Figure;
+import backend.model.Rectangle;
 import javafx.scene.canvas.GraphicsContext;
 
 import java.awt.*;
@@ -14,16 +15,13 @@ public abstract class FrontFigure {
     private Color borderColor;
     private double borderSize;
 
-    public FrontFigure(Figure figure, GraphicsContext gc, Color fillColor, Color borderColor) {
+    public FrontFigure(Figure figure, GraphicsContext gc) {
         this.figure = figure;
         this.gc = gc;
-        this.fillColor = fillColor;
     }
-    public void setFillColor(Color fillColor){
-        this.fillColor = fillColor;
-    }
-    public abstract void fill(GraphicsContext gc);
-    public abstract void stroke(GraphicsContext gc);
+    public abstract void fill();
+
+    public abstract void stroke();
     //retorna el graphicsContext;
     public GraphicsContext getGc() {
         return gc;
@@ -31,12 +29,5 @@ public abstract class FrontFigure {
     //retorna la instancia de figura del back que tenemos guardada
     public Figure getFigure() {
         return figure;
-    }
-    //retorna el color del borde de la figura
-    public Color getBorderColor() {
-        return borderColor;
-    }
-    public Color getFillColor() {
-        return fillColor;
     }
 }
