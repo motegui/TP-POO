@@ -1,11 +1,12 @@
 package backend.model;
 
-public class Ellipse extends Figure {
+public class Ellipse extends ColoredFigure {
 
     protected final Point centerPoint;
     protected final double sMayorAxis, sMinorAxis;
 
-    public Ellipse(Point centerPoint, double sMayorAxis, double sMinorAxis) {
+    public Ellipse(GraphicsController gc, Point centerPoint, double sMayorAxis, double sMinorAxis, String lineColor, String fillColor, double lineWidth) {
+        super(gc, lineColor, fillColor, lineWidth);
         this.centerPoint = centerPoint;
         this.sMayorAxis = sMayorAxis;
         this.sMinorAxis = sMinorAxis;

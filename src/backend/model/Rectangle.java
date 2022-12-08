@@ -1,10 +1,11 @@
 package backend.model;
 
-public class Rectangle extends Figure {
+public class Rectangle extends ColoredFigure {
 
     private final Point topLeft, bottomRight;
 
-    public Rectangle(Point topLeft, Point bottomRight) {
+    public Rectangle(GraphicsController gc, Point topLeft, Point bottomRight, String lineColor, String fillColor, double lineWidth) {
+        super(gc, lineColor, fillColor, lineWidth);
         this.topLeft = topLeft;
         this.bottomRight = bottomRight;
     }
