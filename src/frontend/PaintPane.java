@@ -14,9 +14,12 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 
 public class PaintPane extends BorderPane {
+	private static final Color FIGURE_SELECTION_LINE_COLOR = Color.RED;
 
 	// BackEnd
 	CanvasState canvasState;
+
+
 
 	// Canvas y relacionados
 	Canvas canvas = new Canvas(800, 600);
@@ -180,18 +183,14 @@ public class PaintPane extends BorderPane {
 	void redrawCanvas() {
 		gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
 		//for each para recorrer todas las figuras en la lista del canvasState
-		for(Figure figure : canvasState.figures()) {
-			if(figure == selectedFigure) {
-				gc.setStroke(Color.RED);
-			} else {
-				// si la figura no es la seleccionada , el borde es del color de default o el seteado por el user
-				gc.setStroke(lineColor);
-			}
-			gc.setFill(figure.getFillColor());
-			figure.fill(gc);
-			figure.stroke(gc);
-		//no se puede usar el instanceof y ademas esta muy iterativo
+		for (Figure figure : canvasState.figures()) {
+			drawFigure(figure);
+		}
 	}
+	private void drawFigure(Figure figure){
+		gc.setStroke(canvasState.selectedFigures().contains(figure)? FIGURE_SELECTION_LINE_COLOR : tofxColor(figure.getLineColor()));
+	}
+	private Color tofxColor()
 
 	boolean figureBelongs(Figure figure, Point eventPoint) {
 		boolean found = false;
