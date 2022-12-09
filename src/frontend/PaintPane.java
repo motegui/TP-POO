@@ -71,29 +71,28 @@ public class PaintPane extends BorderPane {
 
 		canvas.setOnMouseReleased(event -> {
 			Point endPoint = new Point(event.getX(), event.getY());
-			if(startPoint == null) {
-				return ;
+			if (startPoint == null) {
+				return;
 			}
 			if(endPoint.getX() < startPoint.getX() || endPoint.getY() < startPoint.getY()) {
 				return ;
 			}
 			ColoredFigure newFigure = null;
-			if(rectangleButton.isSelected()) {
-				newFigure = new Rectangle(fgc,startPoint, endPoint, lineColor.toString(), fillColor.toString(), DEFAULT_LINE_WIDTH);
-			}
-			else if(circleButton.isSelected()) {
+			if (rectangleButton.isSelected()) {
+				newFigure = new Rectangle(fgc, startPoint, endPoint, lineColor.toString(), fillColor.toString(), DEFAULT_LINE_WIDTH);
+			} else if (circleButton.isSelected()) {
 				double circleRadius = Math.abs(endPoint.getX() - startPoint.getX());
-				newFigure = new Circle(fgc,startPoint, circleRadius,lineColor.toString(), fillColor.toString(), DEFAULT_LINE_WIDTH);
-			} else if(squareButton.isSelected()) {
+				newFigure = new Circle(fgc, startPoint, circleRadius, lineColor.toString(), fillColor.toString(), DEFAULT_LINE_WIDTH);
+			} else if (squareButton.isSelected()) {
 				double size = Math.abs(endPoint.getX() - startPoint.getX());
-				newFigure = new Square(fgc,startPoint, size,lineColor.toString(), fillColor.toString(), DEFAULT_LINE_WIDTH);
-			} else if(ellipseButton.isSelected()) {
+				newFigure = new Square(fgc, startPoint, size, lineColor.toString(), fillColor.toString(), DEFAULT_LINE_WIDTH);
+			} else if (ellipseButton.isSelected()) {
 				Point centerPoint = new Point(Math.abs(endPoint.x + startPoint.x) / 2, (Math.abs((endPoint.y + startPoint.y)) / 2));
 				double sMayorAxis = Math.abs(endPoint.x - startPoint.x);
 				double sMinorAxis = Math.abs(endPoint.y - startPoint.y);
-				newFigure = new Ellipse(fgc,centerPoint, sMayorAxis, sMinorAxis,lineColor.toString(), fillColor.toString(), DEFAULT_LINE_WIDTH);
+				newFigure = new Ellipse(fgc, centerPoint, sMayorAxis, sMinorAxis, lineColor.toString(), fillColor.toString(), DEFAULT_LINE_WIDTH);
 			} else {
-				return ;
+				return;
 			}
 			canvasState.addFigure(newFigure);
 			startPoint = null;
@@ -102,49 +101,38 @@ public class PaintPane extends BorderPane {
 
 		canvas.setOnMouseMoved(event -> {
 			Point eventPoint = new Point(event.getX(), event.getY());
-			boolean found = false;
 			StringBuilder label = new StringBuilder();
-			for(Figure figure : canvasState.figures()) {
-				if(figureBelongs(figure, eventPoint)) {
-					found = true;
-					label.append(figure.toString());
+			ColoredFigure last = null;
+			for (ColoredFigure figure : canvasState.figures()) {
+				if (figure.figureBelongs(eventPoint)) {
+					last = figure;
+					label.append(figure);
 				}
 			}
-			if(found) {
-				statusPane.updateStatus(label.toString());
-			} else {
-				statusPane.updateStatus(eventPoint.toString());
-			}
+			statusPane.updateStatus((last == null) ? eventPoint.toString() : label.toString());
 		});
 
 		canvas.setOnMouseClicked(event -> {
-			if(selectionButton.isSelected()) {
+			if (selectionButton.isSelected()) {
 				Point eventPoint = new Point(event.getX(), event.getY());
-				boolean found = false;
 				StringBuilder label = new StringBuilder("Se seleccionó: ");
 				for (ColoredFigure figure : canvasState.figures()) {
-					if(figureBelongs(figure, eventPoint)) {
-						found = true;
+					if (figure.figureBelongs(eventPoint)) {
 						selectedFigure = figure;
 						label.append(figure.toString());
 					}
 				}
-				if (found) {
-					statusPane.updateStatus(label.toString());
-				} else {
-					selectedFigure = null;
-					statusPane.updateStatus("Ninguna figura encontrada");
-				}
+				statusPane.updateStatus((selectedFigure == null) ? "Ninguna figura encontrada." : label.toString());
 				redrawCanvas();
 			}
 		});
 
 		canvas.setOnMouseDragged(event -> {
-			if(selectionButton.isSelected() && selectedFigure != null) {
+			if (selectionButton.isSelected() && selectedFigure != null) {
 				Point eventPoint = new Point(event.getX(), event.getY());
-				double diffX = (eventPoint.getX() - startPoint.getX());
-				double diffY = (eventPoint.getY() - startPoint.getY());
-				selectedFigure.moveFigure(diffX, diffY);
+				double diffX = (eventPoint.getX() - startPoint.getX()) / 100;
+				double diffY = (eventPoint.getY() - startPoint.getY()) / 100;
+				selectedFigure.moveFigure(100*diffX, 100*diffY);
 				startPoint.movePoint(diffX, diffY);
 				redrawCanvas();
 			}
@@ -163,9 +151,9 @@ public class PaintPane extends BorderPane {
 	}
 	//metodo que sirve para actualizar el canvas con los cambios realizados hasta el momento
 	void redrawCanvas() {
-        gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
-        //for each para recorrer todas las figuras en la lista del canvasState
-        for (ColoredFigure figure : canvasState.figures()) {
+		gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
+		//for each para recorrer todas las figuras en la lista del canvasState
+		for (ColoredFigure figure : canvasState.figures()) {
 			if ((figure == selectedFigure)) {
 				figure.draw(FIGURE_SELECTION_LINE_COLOR_HEX);
 			} else {
