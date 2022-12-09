@@ -30,8 +30,8 @@ public class FrontGraphicsController implements GraphicsController {
     @Override
     public void drawEllipse(Point centerPoint, double sMajorAxis, double sMinorAxis, String lineColor, String fillColor, double lineWidth) {
         setColors(lineColor,fillColor,lineWidth);
-        gc.strokeOval(centerPoint.getX() - (sMajorAxis / 2), centerPoint.getY() - (sMinorAxis / 2), sMajorAxis, sMinorAxis);
         gc.fillOval(centerPoint.getX() - (sMajorAxis / 2), centerPoint.getY() - (sMinorAxis / 2), sMajorAxis, sMinorAxis);
+        gc.strokeOval(centerPoint.getX() - (sMajorAxis / 2), centerPoint.getY() - (sMinorAxis / 2), sMajorAxis, sMinorAxis);
     }
 
     @Override

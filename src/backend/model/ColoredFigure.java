@@ -24,6 +24,16 @@ public abstract class ColoredFigure extends Figure {
         return fillColor;
     }
 
+    public void setFillColor(String fillColor){
+        this.fillColor=fillColor;
+    }
+    public void setLineColor(String lineColor){
+        this.lineColor=lineColor;
+    }
+
+    public void setLineWidth(double lineWidth) {
+        this.lineWidth = lineWidth;
+    }
     public String getLineColor() {
         return lineColor;
     }

@@ -79,18 +79,18 @@ public class PaintPane extends BorderPane {
 			}
 			ColoredFigure newFigure = null;
 			if (rectangleButton.isSelected()) {
-				newFigure = new Rectangle(fgc, startPoint, endPoint, lineColor.toString(), fillColor.toString(), DEFAULT_LINE_WIDTH);
+				newFigure = new Rectangle(fgc, startPoint, endPoint, lineColor.toString(), fillColor.toString(), sliderWidth);
 			} else if (circleButton.isSelected()) {
 				double circleRadius = Math.abs(endPoint.getX() - startPoint.getX());
-				newFigure = new Circle(fgc, startPoint, circleRadius, lineColor.toString(), fillColor.toString(), DEFAULT_LINE_WIDTH);
+				newFigure = new Circle(fgc, startPoint, circleRadius, lineColor.toString(), fillColor.toString(), sliderWidth);
 			} else if (squareButton.isSelected()) {
 				double size = Math.abs(endPoint.getX() - startPoint.getX());
-				newFigure = new Square(fgc, startPoint, size, lineColor.toString(), fillColor.toString(), DEFAULT_LINE_WIDTH);
+				newFigure = new Square(fgc, startPoint, size, lineColor.toString(), fillColor.toString(), sliderWidth);
 			} else if (ellipseButton.isSelected()) {
 				Point centerPoint = new Point(Math.abs(endPoint.x + startPoint.x) / 2, (Math.abs((endPoint.y + startPoint.y)) / 2));
 				double sMayorAxis = Math.abs(endPoint.x - startPoint.x);
 				double sMinorAxis = Math.abs(endPoint.y - startPoint.y);
-				newFigure = new Ellipse(fgc, centerPoint, sMayorAxis, sMinorAxis, lineColor.toString(), fillColor.toString(), DEFAULT_LINE_WIDTH);
+				newFigure = new Ellipse(fgc, centerPoint, sMayorAxis, sMinorAxis, lineColor.toString(), fillColor.toString(), sliderWidth);
 			} else {
 				return;
 			}
@@ -130,10 +130,10 @@ public class PaintPane extends BorderPane {
 		canvas.setOnMouseDragged(event -> {
 			if (selectionButton.isSelected() && selectedFigure != null) {
 				Point eventPoint = new Point(event.getX(), event.getY());
-				double diffX = (eventPoint.getX() - startPoint.getX()) / 100;
-				double diffY = (eventPoint.getY() - startPoint.getY()) / 100;
-				selectedFigure.moveFigure(100*diffX, 100*diffY);
-				startPoint.movePoint(diffX, diffY);
+				double diffX = (eventPoint.getX() - startPoint.getX()) / 100.0;
+				double diffY = (eventPoint.getY() - startPoint.getY()) / 100.0;
+				selectedFigure.moveFigure(100.0*diffX, 100.0*diffY);
+				startPoint.movePoint(0,0);
 				redrawCanvas();
 			}
 		});
@@ -146,9 +146,36 @@ public class PaintPane extends BorderPane {
 			}
 		});
 
+		fillColorPicker.setOnAction(event -> {
+			fillColor = fillColorPicker.getValue();
+			if (selectedFigure != null) {
+				selectedFigure.setFillColor(fillColor.toString());
+				redrawCanvas();
+			}
+		});
+
+		LineColorPicker.setOnAction(event -> {
+			lineColor = LineColorPicker.getValue();
+			if (selectedFigure != null) {
+				selectedFigure.setLineColor(LineColorPicker.getValue().toString());
+				redrawCanvas();
+			}
+		});
+
+		borderSize.setOnMouseDragged(event -> {
+			sliderWidth = borderSize.getValue();
+			if (selectedFigure != null) {
+				selectedFigure.setLineWidth(sliderWidth);
+				redrawCanvas();
+			}
+		});
+
+
 		setLeft(buttonsBox);
 		setRight(canvas);
 	}
+
+
 	//metodo que sirve para actualizar el canvas con los cambios realizados hasta el momento
 	void redrawCanvas() {
 		gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());

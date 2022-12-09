@@ -4,10 +4,14 @@ public class Rectangle extends ColoredFigure {
 
     private final Point topLeft, bottomRight;
 
+    private final double width;
+    private final double height;
     public Rectangle(GraphicsController gc, Point topLeft, Point bottomRight, String lineColor, String fillColor, double lineWidth) {
         super(gc, lineColor, fillColor, lineWidth);
         this.topLeft = topLeft;
         this.bottomRight = bottomRight;
+        this.width = bottomRight.getX()- topLeft.getX();
+        this.height = topLeft.getY()- bottomRight.getY();
     }
 
     public Point getTopLeft() {
@@ -18,6 +22,7 @@ public class Rectangle extends ColoredFigure {
         return bottomRight;
     }
 
+
     @Override
     public String toString() {
         return String.format("Rectángulo [ %s , %s ]", topLeft, bottomRight);
@@ -25,10 +30,8 @@ public class Rectangle extends ColoredFigure {
 
     @Override
     public void moveFigure(double x, double y){
-        System.out.println(new Point(x,y));
-        bottomRight.movePoint(x+ bottomRight.getX()- topLeft.getX(),y+ topLeft.getY()- bottomRight.getY());
         topLeft.movePoint(x,y);
-//        bottomRight.movePoint(x+ bottomRight.getX()- topLeft.getX(),y+ topLeft.getY()- bottomRight.getY());
+        bottomRight.movePoint(x+width,y-height);
     }
 
     @Override
