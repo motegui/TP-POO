@@ -44,4 +44,8 @@ public class Ellipse extends ColoredFigure {
                 (Math.pow(eventPoint.getY() - centerPoint.getY(), 2) / Math.pow(sMinorAxis, 2))) <= 0.30;
     }
 
+    @Override
+    public ColoredFigure copyFigure() {
+        return new Ellipse(getGc(), centerPoint, sMayorAxis, sMinorAxis, getLineColor(), getFillColor(), getLineWidth());
+    }
 }

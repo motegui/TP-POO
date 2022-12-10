@@ -2,17 +2,20 @@ package frontend;
 
 import backend.CanvasState;
 import backend.model.*;
-//import frontend.FrontFigures.GetFrontFigure;
+import com.sun.javafx.scene.web.skin.HTMLEditorSkin;
 import javafx.geometry.Insets;
-import javafx.geometry.Pos;
 import javafx.scene.Cursor;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
+import java.util.ResourceBundle;
 
 
 public class PaintPane extends BorderPane {
@@ -43,12 +46,28 @@ public class PaintPane extends BorderPane {
 	Slider borderSize = new Slider(1.0, 50.0, 26.0);
 	ColorPicker LineColorPicker = new ColorPicker(lineColor); //paneles de color seteados por default como se pedia
 	ColorPicker fillColorPicker = new ColorPicker(fillColor);
-	ToggleButton undoButton = new ToggleButton("Deshacer");
-	ToggleButton redoButton = new ToggleButton("Rehacer");
 
-	Button cut = new Button("Cut");
-	Button copy = new Button("Copy");
-	Button paste = new Button("Paste");
+	String undoIconPath = ResourceBundle.getBundle(HTMLEditorSkin.class.getName()).getString("undoIcon");
+	Image undoIcon = new Image(HTMLEditorSkin.class.getResource(undoIconPath).toString());
+	Button undoButton = new Button("Deshacer", new ImageView(undoIcon));
+	String redoIconPath = ResourceBundle.getBundle(HTMLEditorSkin.class.getName()).getString("redoIcon");
+	Image redoIcon = new Image(HTMLEditorSkin.class.getResource(redoIconPath).toString());
+
+	Button redoButton = new Button("Rehacer", new ImageView(redoIcon));
+
+
+	String cutIconPath = ResourceBundle.getBundle(HTMLEditorSkin.class.getName()).getString("cutIcon");
+	Image cutIcon = new Image(HTMLEditorSkin.class.getResource(cutIconPath).toString());
+	Button cut = new Button("Cortar", new ImageView(cutIcon));
+
+	String copyIconPath = ResourceBundle.getBundle(HTMLEditorSkin.class.getName()).getString("copyIcon");
+	Image copyIcon = new Image(HTMLEditorSkin.class.getResource(copyIconPath).toString());
+	Button copy = new Button("Copiar", new ImageView(copyIcon));
+	String pasteIconPath = ResourceBundle.getBundle(HTMLEditorSkin.class.getName()).getString("pasteIcon");
+	Image pasteIcon = new Image(HTMLEditorSkin.class.getResource(pasteIconPath).toString());
+
+	Button paste = new Button("Pegar", new ImageView(pasteIcon));
+
 
 	// Dibujar una figura
 	private Point startPoint;
@@ -56,6 +75,10 @@ public class PaintPane extends BorderPane {
 	// Seleccionar una figura
 	private ColoredFigure selectedFigure = null;
 
+	private Text undoText = new Text("0");
+	private Text redoText = new Text("0");
+
+	private ColoredFigure clipboard;
 
 
 	// StatusBar
@@ -65,6 +88,32 @@ public class PaintPane extends BorderPane {
 		this.canvasState = canvasState;
 		this.statusPane = statusPane;
 
+
+
+		Button[] shortcut = {cut, copy, paste, undoButton, redoButton};
+		HBox shortcuts = new HBox(10);
+
+		shortcuts.getChildren().addAll(cut, copy, paste);
+		for (Button tool : shortcut) { //itera por los botones para setear su tamaño
+			tool.setMinWidth(90);
+			tool.setCursor(Cursor.HAND);
+		}
+		setTop(shortcuts);
+		shortcuts.setPadding(new Insets(5));
+
+
+
+		HBox timetravel = new HBox(10);
+		timetravel.getChildren().addAll(undoText, undoButton, redoButton, redoText);
+		timetravel.setPadding(new Insets(5));
+		timetravel.setStyle("-fx-background-color: #999; -fx-alignment: center");
+
+		BorderPane topPane = new BorderPane();
+		topPane.setTop(shortcuts);
+		topPane.setBottom(timetravel);
+		setTop(topPane);
+
+		shortcuts.setStyle("-fx-background-color: #999");
 		//estilo de los botones
 		ToggleButton[] toolsArr = {selectionButton, rectangleButton, circleButton, squareButton, ellipseButton, deleteButton, undoButton, redoButton, cpyFormat};
 
@@ -75,13 +124,10 @@ public class PaintPane extends BorderPane {
 			tool.setToggleGroup(tools);
 			tool.setCursor(Cursor.HAND);
 		}
-
-		VBox vbox = new VBox(8); // spacing = 8
-		vbox.setAlignment(Pos.TOP_CENTER);
-		vbox.getChildren().addAll(cut, copy, paste);
-
 		//crea un nuevo layout con todos los botones de forma vertical a la izq uno abajo del otro
 		VBox buttonsBox = new VBox(10);
+
+
 		buttonsBox.getChildren().addAll(toolsArr);
 		borderSize.setShowTickMarks(true);
 		borderSize.setShowTickLabels(true);
@@ -94,28 +140,39 @@ public class PaintPane extends BorderPane {
 		buttonsBox.setPrefWidth(100);
 		gc.setLineWidth(sliderWidth);
 		FrontGraphicsController fgc = new FrontGraphicsController(gc);
-		//slider para cambiar el grosor del borde
-		//borderSize.setOnMouseReleased(event -> {
-		//hago un try catch por si no hay ninguna figura seleccionada
-//			try{
-//				selectedFigureExists();
-//				selectedFigure.setLineWidth(borderSize.getValue());
-//				redrawCanvas();
-//			}
-//			catch(NoSelectedFigureException ex){
-//				System.out.println(ex.getMessage());
-//			}
-//
-//		});
-//		private void selectedFigureExists(){
-//			throw new NoSelectedFigureException();
-//		}
+
+
+
 
 
 		canvas.setOnMousePressed(event -> {
 			startPoint = new Point(event.getX(), event.getY());
 		});
 
+//		canvas.setOnMouseReleased(event -> {
+//			Point endPoint = new Point(event.getX(), event.getY());
+//			if (startPoint == null) {
+//				return;
+//			}
+//			if(endPoint.getX() < startPoint.getX() || endPoint.getY() < startPoint.getY()){
+//				return;
+//			}
+//			ColoredFigure newFigure = null;
+//			ToggleButton[] buttons = new ToggleButton[]{ellipseButton,circleButton,squareButton,rectangleButton};
+//			for(ToggleButton b : buttons){
+//			if(b.isSelected()){
+//				newFigure = b.draw( );
+//				//cuando se dibuje una figura aca voy a tener que hacer la logica de redo aca
+//			}
+//			if(newFigure != null){
+//				canvasState.addFigure(newFigure);
+//				// aca sigue yendo lo del undo
+//			}
+//		}
+//			startPoint = null;
+//			redrawCanvas();
+//		});
+		//BORRAR DESDE ACA
 		canvas.setOnMouseReleased(event -> {
 			Point endPoint = new Point(event.getX(), event.getY());
 			if (startPoint == null) {
@@ -142,32 +199,16 @@ public class PaintPane extends BorderPane {
 			startPoint = null;
 			redrawCanvas();
 		});
+		//HASTA ACA
 
-
-		canvas.setOnMouseMoved(event -> {
-			Point eventPoint = new Point(event.getX(), event.getY());
-			StringBuilder label = new StringBuilder();
-			ColoredFigure last = null;
-			for (ColoredFigure figure : canvasState.figures()) {
-				if (figure.figureBelongs(eventPoint)) {
-					last = figure;
-					label.append(figure);
-				}
-			}
-			statusPane.updateStatus((last == null) ? eventPoint.toString() : label.toString());
-		});
-
-
-		canvas.setOnMouseClicked(event -> {
-
-			Point eventPoint = new Point(event.getX(), event.getY());
-			if (selectedFigure != null && cpyFormat.isSelected()) {
-				Double auxWidth=selectedFigure.getLineWidth();
-				String auxLineColor=selectedFigure.getLineColor();
-				String auxFillColor=selectedFigure.getFillColor();
-				ColoredFigure aux = selectedFigure;
-				find(eventPoint);
-				if(selectedFigure!=null) {
+				canvas.setOnMouseClicked(event -> {
+				Point eventPoint = new Point(event.getX(), event.getY());
+				if (selectedFigure != null && cpyFormat.isSelected()) {
+					Double auxWidth=selectedFigure.getLineWidth();
+					String auxLineColor=selectedFigure.getLineColor();
+					String auxFillColor=selectedFigure.getFillColor();
+					ColoredFigure aux = selectedFigure;
+					find(eventPoint);
 					selectedFigure.setFillColor(auxFillColor);
 					selectedFigure.setLineColor(auxLineColor);
 					selectedFigure.setLineWidth(auxWidth);
@@ -230,6 +271,28 @@ public class PaintPane extends BorderPane {
 		});
 
 
+		copy.setOnAction(event -> {
+				clipboard = selectedFigure;
+				redrawCanvas();
+		});
+
+		paste.setOnAction(event -> {
+			if (clipboard != null) {
+				ColoredFigure figure = clipboard.copyFigure();
+				canvasState.addFigure(figure);
+				redrawCanvas();
+			}
+		});
+
+		cut.setOnAction(event -> {
+			if (selectedFigure != null) {
+				clipboard = selectedFigure;
+				canvasState.deleteFigure(selectedFigure);
+				selectedFigure = null;
+				redrawCanvas();
+			}
+		});
+
 		setLeft(buttonsBox);
 		setRight(canvas);
 	}
@@ -255,6 +318,8 @@ public class PaintPane extends BorderPane {
 			}
 		}
 	}
+
+
 	//rehace el ultimo cambio
 //	public void redoChange(){
 //		selectedFigure=null;

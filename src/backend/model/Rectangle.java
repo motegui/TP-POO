@@ -47,4 +47,8 @@ public class Rectangle extends ColoredFigure {
                 eventPoint.getY() > getTopLeft().getY() && eventPoint.getY() < getBottomRight().getY();
     }
 
+    @Override
+    public ColoredFigure copyFigure() {
+        return new Rectangle(getGc(), topLeft, bottomRight, getLineColor(), getFillColor(), getLineWidth());
+    }
 }
