@@ -15,4 +15,14 @@ public class Square extends Rectangle {
         return String.format("Cuadrado [ %s , %s ]", getTopLeft(), getBottomRight());
     }
 
+    @Override
+    public void draw(String lineColor) {
+        getGc().drawSquare(super.getTopLeft(), size, lineColor,getFillColor(),getLineWidth());
+    }
+    @Override
+    public boolean containsPoint(Point eventPoint){
+        return  eventPoint.getX() > getTopLeft().getX() && eventPoint.getX() < getBottomRight().getX() &&
+                eventPoint.getY() > getTopLeft().getY() && eventPoint.getY() < getBottomRight().getY();
+    }
+
 }

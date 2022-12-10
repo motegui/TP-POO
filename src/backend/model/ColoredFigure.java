@@ -9,6 +9,7 @@ public abstract class ColoredFigure extends Figure {
         this.lineColor = lineColor;
         this.fillColor = fillColor;
         this.lineWidth = lineWidth;
+
     }
 
     @Override

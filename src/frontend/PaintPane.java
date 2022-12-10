@@ -14,19 +14,24 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.control.ColorPicker;
 import javafx.scene.control.Slider;
-
+import javafx.scene.text.Text;
 
 
 public class PaintPane extends BorderPane {
 
 	// BackEnd
 	CanvasState canvasState;
+	private static final Color FIGURE_SELECTION_LINE_COLOR = Color.RED;
+	private static final String FIGURE_SELECTION_LINE_COLOR_HEX = "#FF0000";
+	private static final double DEFAULT_LINE_WIDTH = 1;
+
 
 	// Canvas y relacionados
 	Canvas canvas = new Canvas(800, 600);
 	GraphicsContext gc = canvas.getGraphicsContext2D();
 	Color lineColor = Color.BLACK;
 	Color fillColor = Color.YELLOW;
+	Double sliderWidth = 1.0;
 
 	// Botones Barra Izquierda
 	ToggleButton selectionButton = new ToggleButton("Seleccionar");
@@ -35,35 +40,68 @@ public class PaintPane extends BorderPane {
 	ToggleButton squareButton = new ToggleButton("Cuadrado");
 	ToggleButton ellipseButton = new ToggleButton("Elipse");
 	ToggleButton deleteButton = new ToggleButton("Borrar");
+	ToggleButton cpyFormat = new ToggleButton("Cop.Form.");
+
+	Slider borderSize = new Slider(1.0, 50.0, 26.0);
+	ColorPicker LineColorPicker = new ColorPicker(lineColor); //paneles de color seteados por default como se pedia
+	ColorPicker fillColorPicker = new ColorPicker(fillColor);
+	ToggleButton undoButton = new ToggleButton("Deshacer");
+	ToggleButton redoButton = new ToggleButton("Rehacer");
 
 	// Dibujar una figura
-	Point startPoint;
+	private Point startPoint;
 
 	// Seleccionar una figura
-	Figure selectedFigure;
+	private ColoredFigure selectedFigure = null;
 
 	// StatusBar
-	StatusPane statusPane;
+	private StatusPane statusPane;
 
 	public PaintPane(CanvasState canvasState, StatusPane statusPane) {
 		this.canvasState = canvasState;
 		this.statusPane = statusPane;
 
 		//estilo de los botones
-		ToggleButton[] toolsArr = {selectionButton, rectangleButton, circleButton, squareButton, ellipseButton, deleteButton};
+		ToggleButton[] toolsArr = {selectionButton, rectangleButton, circleButton, squareButton, ellipseButton, deleteButton, undoButton, redoButton, cpyFormat};
+
 		ToggleGroup tools = new ToggleGroup();
 		for (ToggleButton tool : toolsArr) { //itera por los botones para setear su tamaño
 			tool.setMinWidth(90);
 			tool.setToggleGroup(tools);
 			tool.setCursor(Cursor.HAND);
 		}
+
 		//crea un nuevo layout con todos los botones de forma vertical a la izq uno abajo del otro
 		VBox buttonsBox = new VBox(10);
 		buttonsBox.getChildren().addAll(toolsArr);
+		borderSize.setShowTickMarks(true);
+		borderSize.setShowTickLabels(true);
+		buttonsBox.getChildren().addAll(new Text("Borde"),borderSize, LineColorPicker);
+		buttonsBox.getChildren().addAll(new Text("Relleno"), fillColorPicker);
+
+
 		buttonsBox.setPadding(new Insets(5));
 		buttonsBox.setStyle("-fx-background-color: #999");
 		buttonsBox.setPrefWidth(100);
-		gc.setLineWidth(1);
+		gc.setLineWidth(sliderWidth);
+		FrontGraphicsController fgc = new FrontGraphicsController(gc);
+		//slider para cambiar el grosor del borde
+		//borderSize.setOnMouseReleased(event -> {
+		//hago un try catch por si no hay ninguna figura seleccionada
+//			try{
+//				selectedFigureExists();
+//				selectedFigure.setLineWidth(borderSize.getValue());
+//				redrawCanvas();
+//			}
+//			catch(NoSelectedFigureException ex){
+//				System.out.println(ex.getMessage());
+//			}
+//
+//		});
+//		private void selectedFigureExists(){
+//			throw new NoSelectedFigureException();
+//		}
+
 
 		canvas.setOnMousePressed(event -> {
 			startPoint = new Point(event.getX(), event.getY());
@@ -73,9 +111,6 @@ public class PaintPane extends BorderPane {
 			Point endPoint = new Point(event.getX(), event.getY());
 			if (startPoint == null) {
 				return;
-			}
-			if(endPoint.getX() < startPoint.getX() || endPoint.getY() < startPoint.getY()) {
-				return ;
 			}
 			ColoredFigure newFigure = null;
 			if (rectangleButton.isSelected()) {
@@ -99,6 +134,7 @@ public class PaintPane extends BorderPane {
 			redrawCanvas();
 		});
 
+
 		canvas.setOnMouseMoved(event -> {
 			Point eventPoint = new Point(event.getX(), event.getY());
 			StringBuilder label = new StringBuilder();
@@ -112,6 +148,14 @@ public class PaintPane extends BorderPane {
 			statusPane.updateStatus((last == null) ? eventPoint.toString() : label.toString());
 		});
 
+		cpyFormat.setOnAction(event ->{
+			if (selectedFigure != null) {
+				Double auxWidth=selectedFigure.getLineWidth();
+				String auxLineColor=selectedFigure.getLineColor();
+				String auxFillColor=selectedFigure.getFillColor();
+				redrawCanvas();
+			}
+		});
 		canvas.setOnMouseClicked(event -> {
 			if (selectionButton.isSelected()) {
 				Point eventPoint = new Point(event.getX(), event.getY());
@@ -146,6 +190,8 @@ public class PaintPane extends BorderPane {
 			}
 		});
 
+
+
 		fillColorPicker.setOnAction(event -> {
 			fillColor = fillColorPicker.getValue();
 			if (selectedFigure != null) {
@@ -177,7 +223,7 @@ public class PaintPane extends BorderPane {
 
 
 	//metodo que sirve para actualizar el canvas con los cambios realizados hasta el momento
-	void redrawCanvas() {
+	private void redrawCanvas() {
 		gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
 		//for each para recorrer todas las figuras en la lista del canvasState
 		for (ColoredFigure figure : canvasState.figures()) {
@@ -189,28 +235,17 @@ public class PaintPane extends BorderPane {
 		}
 
 	}
-
-	boolean figureBelongs(Figure figure, Point eventPoint) {
-		boolean found = false;
-		if(figure instanceof Rectangle) {
-			Rectangle rectangle = (Rectangle) figure;
-			found = eventPoint.getX() > rectangle.getTopLeft().getX() && eventPoint.getX() < rectangle.getBottomRight().getX() &&
-					eventPoint.getY() > rectangle.getTopLeft().getY() && eventPoint.getY() < rectangle.getBottomRight().getY();
-		} else if(figure instanceof Circle) {
-			Circle circle = (Circle) figure;
-			found = Math.sqrt(Math.pow(circle.getCenterPoint().getX() - eventPoint.getX(), 2) +
-					Math.pow(circle.getCenterPoint().getY() - eventPoint.getY(), 2)) < circle.getRadius();
-		} else if(figure instanceof Square) {
-			Square square = (Square) figure;
-			found = eventPoint.getX() > square.getTopLeft().getX() && eventPoint.getX() < square.getBottomRight().getX() &&
-					eventPoint.getY() > square.getTopLeft().getY() && eventPoint.getY() < square.getBottomRight().getY();
-		} else if(figure instanceof Ellipse) {
-			Ellipse ellipse = (Ellipse) figure;
-			// Nota: Fórmula aproximada. No es necesario corregirla.
-			found = ((Math.pow(eventPoint.getX() - ellipse.getCenterPoint().getX(), 2) / Math.pow(ellipse.getsMayorAxis(), 2)) +
-					(Math.pow(eventPoint.getY() - ellipse.getCenterPoint().getY(), 2) / Math.pow(ellipse.getsMinorAxis(), 2))) <= 0.30;
-		}
-		return found;
-	}
-
+	//rehace el ultimo cambio
+//	public void redoChange(){
+//		selectedFigure=null;
+//		canvasState.redoChange();
+//		redrawCanvas();
+//	}
+//
+//	//revierte el ultimo cambio
+//		public void undoChange(){
+//		selectedFigure = null;
+//		canvasState.undoChange();
+//		redrawCanvas();
+//		}
 }
