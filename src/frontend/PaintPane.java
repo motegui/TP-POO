@@ -4,16 +4,14 @@ import backend.CanvasState;
 import backend.model.*;
 //import frontend.FrontFigures.GetFrontFigure;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Cursor;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.control.ToggleButton;
-import javafx.scene.control.ToggleGroup;
+import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
-import javafx.scene.control.ColorPicker;
-import javafx.scene.control.Slider;
 import javafx.scene.text.Text;
 
 
@@ -48,6 +46,10 @@ public class PaintPane extends BorderPane {
 	ToggleButton undoButton = new ToggleButton("Deshacer");
 	ToggleButton redoButton = new ToggleButton("Rehacer");
 
+	Button cut = new Button("Cut");
+	Button copy = new Button("Copy");
+	Button paste = new Button("Paste");
+
 	// Dibujar una figura
 	private Point startPoint;
 
@@ -66,12 +68,17 @@ public class PaintPane extends BorderPane {
 		//estilo de los botones
 		ToggleButton[] toolsArr = {selectionButton, rectangleButton, circleButton, squareButton, ellipseButton, deleteButton, undoButton, redoButton, cpyFormat};
 
+
 		ToggleGroup tools = new ToggleGroup();
 		for (ToggleButton tool : toolsArr) { //itera por los botones para setear su tamaño
 			tool.setMinWidth(90);
 			tool.setToggleGroup(tools);
 			tool.setCursor(Cursor.HAND);
 		}
+
+		VBox vbox = new VBox(8); // spacing = 8
+		vbox.setAlignment(Pos.TOP_CENTER);
+		vbox.getChildren().addAll(cut, copy, paste);
 
 		//crea un nuevo layout con todos los botones de forma vertical a la izq uno abajo del otro
 		VBox buttonsBox = new VBox(10);
