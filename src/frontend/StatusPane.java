@@ -1,5 +1,6 @@
 package frontend;
 
+import backend.model.ColoredFigure;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.layout.BorderPane;
@@ -16,8 +17,12 @@ public class StatusPane extends BorderPane {
 		setCenter(statusLabel);
 	}
 	
-	public void updateStatus(String text) {
-		statusLabel.setText(text);
+//	public void updateStatus(String text) {
+//
+//		statusLabel.setText(text);
+//	}
+	public void updateStatus(String st) {
+		statusLabel.setText(st);
 	}
 
 }
