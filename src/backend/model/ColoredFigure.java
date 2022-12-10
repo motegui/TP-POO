@@ -46,12 +46,5 @@ public abstract class ColoredFigure extends Figure {
     public abstract void draw(String lineColor);
 
     public abstract boolean containsPoint(Point eventPoint);
-    public ColoredFigure find(Point eventPoint, CanvasState canvasState){
-        for (ColoredFigure figure : canvasState.figures()) {
-            if (figure.figureBelongs(eventPoint)) {
-                return figure;
-            }
-        }
-        return null;
-    }
+
 }

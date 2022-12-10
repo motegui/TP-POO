@@ -21,9 +21,9 @@ public class PaintPane extends BorderPane {
 
 	// BackEnd
 	CanvasState canvasState;
-	private static final Color FIGURE_SELECTION_LINE_COLOR = Color.RED;
+
 	private static final String FIGURE_SELECTION_LINE_COLOR_HEX = "#FF0000";
-	private static final double DEFAULT_LINE_WIDTH = 1;
+
 
 
 	// Canvas y relacionados
@@ -53,6 +53,8 @@ public class PaintPane extends BorderPane {
 
 	// Seleccionar una figura
 	private ColoredFigure selectedFigure = null;
+
+
 
 	// StatusBar
 	private StatusPane statusPane;
@@ -148,9 +150,7 @@ public class PaintPane extends BorderPane {
 			statusPane.updateStatus((last == null) ? eventPoint.toString() : label.toString());
 		});
 
-//		cpyFormat.setOnAction(event ->{
-//
-//		});
+
 		canvas.setOnMouseClicked(event -> {
 
 			Point eventPoint = new Point(event.getX(), event.getY());
@@ -158,23 +158,21 @@ public class PaintPane extends BorderPane {
 				Double auxWidth=selectedFigure.getLineWidth();
 				String auxLineColor=selectedFigure.getLineColor();
 				String auxFillColor=selectedFigure.getFillColor();
-				selectedFigure= selectedFigure.find(eventPoint, canvasState);
+				ColoredFigure aux = selectedFigure;
+				find(eventPoint);
 				if(selectedFigure!=null) {
 					selectedFigure.setFillColor(auxFillColor);
 					selectedFigure.setLineColor(auxLineColor);
 					selectedFigure.setLineWidth(auxWidth);
 				}
+				selectedFigure = aux;
+				selectionButton.setSelected(true);
 			}
-			else if (selectionButton.isSelected()) {  //hay que arreglar el for each de aca no funciona el find porque puede ser null el seected figure
-				//y creo que el find esta mal donde lo puse pero por ahora funca
+			else if (selectionButton.isSelected()) {
 				StringBuilder label = new StringBuilder("Se seleccionó: ");
-				for (ColoredFigure figure : canvasState.figures()) {
-					if (figure.figureBelongs(eventPoint)) {
-						selectedFigure = figure;
-						label.append(figure);
-					}
-				}
-				statusPane.updateStatus((selectedFigure == null) ? "Ninguna figura encontrada." : label.toString());
+				selectedFigure = null;
+				find(eventPoint);
+				statusPane.updateStatus((selectedFigure == null) ? "Ninguna figura encontrada." : label.append(selectedFigure).toString());
 			}
 			redrawCanvas();
 		});
@@ -242,6 +240,13 @@ public class PaintPane extends BorderPane {
 			}
 		}
 
+	}
+	public void find(Point eventPoint){
+		for (ColoredFigure figure : canvasState.figures()) {
+			if (figure.figureBelongs(eventPoint)) {
+				selectedFigure = figure;
+			}
+		}
 	}
 	//rehace el ultimo cambio
 //	public void redoChange(){

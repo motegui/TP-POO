@@ -41,8 +41,6 @@ public class Rectangle extends ColoredFigure {
         getGc().drawRectangle(topLeft, bottomRight, lineColor,getFillColor(),getLineWidth());
     }
 
-
-
     @Override
     public boolean containsPoint(Point eventPoint){
         return eventPoint.getX() > getTopLeft().getX() && eventPoint.getX() < getBottomRight().getX() &&
