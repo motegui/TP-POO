@@ -148,27 +148,35 @@ public class PaintPane extends BorderPane {
 			statusPane.updateStatus((last == null) ? eventPoint.toString() : label.toString());
 		});
 
-		cpyFormat.setOnAction(event ->{
-			if (selectedFigure != null) {
+//		cpyFormat.setOnAction(event ->{
+//
+//		});
+		canvas.setOnMouseClicked(event -> {
+
+			Point eventPoint = new Point(event.getX(), event.getY());
+			if (selectedFigure != null && cpyFormat.isSelected()) {
 				Double auxWidth=selectedFigure.getLineWidth();
 				String auxLineColor=selectedFigure.getLineColor();
 				String auxFillColor=selectedFigure.getFillColor();
-				redrawCanvas();
+				selectedFigure= selectedFigure.find(eventPoint, canvasState);
+				if(selectedFigure!=null) {
+					selectedFigure.setFillColor(auxFillColor);
+					selectedFigure.setLineColor(auxLineColor);
+					selectedFigure.setLineWidth(auxWidth);
+				}
 			}
-		});
-		canvas.setOnMouseClicked(event -> {
-			if (selectionButton.isSelected()) {
-				Point eventPoint = new Point(event.getX(), event.getY());
+			else if (selectionButton.isSelected()) {  //hay que arreglar el for each de aca no funciona el find porque puede ser null el seected figure
+				//y creo que el find esta mal donde lo puse pero por ahora funca
 				StringBuilder label = new StringBuilder("Se seleccionó: ");
 				for (ColoredFigure figure : canvasState.figures()) {
 					if (figure.figureBelongs(eventPoint)) {
 						selectedFigure = figure;
-						label.append(figure.toString());
+						label.append(figure);
 					}
 				}
 				statusPane.updateStatus((selectedFigure == null) ? "Ninguna figura encontrada." : label.toString());
-				redrawCanvas();
 			}
+			redrawCanvas();
 		});
 
 		canvas.setOnMouseDragged(event -> {

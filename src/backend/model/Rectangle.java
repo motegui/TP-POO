@@ -1,5 +1,7 @@
 package backend.model;
 
+import backend.CanvasState;
+
 public class Rectangle extends ColoredFigure {
 
     private final Point topLeft, bottomRight;
@@ -38,6 +40,8 @@ public class Rectangle extends ColoredFigure {
     public void draw(String lineColor) {
         getGc().drawRectangle(topLeft, bottomRight, lineColor,getFillColor(),getLineWidth());
     }
+
+
 
     @Override
     public boolean containsPoint(Point eventPoint){
