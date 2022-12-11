@@ -51,8 +51,7 @@ public class PaintPane extends BorderPane {
 	ToggleButton ellipseButton = new ToggleButton("Elipse");
 	ToggleButton deleteButton = new ToggleButton("Borrar");
 	ToggleButton cpyFormat = new ToggleButton("Cop.Form.");
-	Label undoLabel = new Label("0");
-	Label redoLabel = new Label("0");
+
 
 	Slider borderSize = new Slider(1.0, 50.0, 26.0);
 	ColorPicker LineColorPicker = new ColorPicker(lineColor); //paneles de color seteados por default como se pedia
@@ -86,8 +85,11 @@ public class PaintPane extends BorderPane {
 	// Seleccionar una figura
 	private ColoredFigure selectedFigure = null;
 
-	private Text undoText = new Text("0");
-	private Text redoText = new Text("0");
+	Label undoLabel = new Label("");
+
+	Label undoCounter = new Label("0");
+	Label redoLabel = new Label("");
+	Label redoCounter = new Label("0");
 
 	private ColoredFigure clipboard;
 
@@ -114,7 +116,11 @@ public class PaintPane extends BorderPane {
 		shortcuts.setPadding(new Insets(5));
 
 		HBox timetravel = new HBox(10);
-		timetravel.getChildren().addAll(undoText, undoButton, redoButton, redoText);
+		undoLabel.setMinWidth(300);
+		undoLabel.setAlignment(Pos.CENTER_RIGHT);
+		redoLabel.setMinWidth(300);
+
+		timetravel.getChildren().addAll( undoLabel, undoCounter, undoButton, redoButton, redoCounter, redoLabel);
 		timetravel.setPadding(new Insets(5));
 		timetravel.setStyle("-fx-background-color: #999; -fx-alignment: center");
 
@@ -365,8 +371,11 @@ public class PaintPane extends BorderPane {
 
 
 	private void updateLabels() {
-		undoText.setText(String.format("%s [%d]", timetravelInstance.getUndoSize() != 0 ? timetravelInstance.getUndoLastAction() : "", timetravelInstance.getUndoSize()));
-		redoText.setText(String.format("[%d] %s", timetravelInstance.getRedoSize(), timetravelInstance.getRedoSize() != 0 ? timetravelInstance.getRedoLastAction() : ""));
+		undoLabel.setText(String.format("%s", timetravelInstance.getUndoSize() != 0 ? timetravelInstance.getUndoLastAction() : ""));
+		undoCounter.setText(String.format("[%d]", timetravelInstance.getUndoSize()));
+		redoCounter.setText(String.format("[%d]", timetravelInstance.getRedoSize()));
+		redoLabel.setText(String.format("%s", timetravelInstance.getRedoSize() != 0 ? timetravelInstance.getRedoLastAction() : ""));
+
 	}
 
 
