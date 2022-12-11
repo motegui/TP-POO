@@ -10,8 +10,8 @@ import backend.exception.NothingToDoException;
 import javax.swing.*;
 
 public class Timetravel {
-    private ArrayDeque<ActionState> undoStack = new ArrayDeque<>();
-    private ArrayDeque<ActionState> redoStack = new ArrayDeque<>();
+    private final ArrayDeque<ActionState> undoStack = new ArrayDeque<>(); //stack for undo
+    private final ArrayDeque<ActionState> redoStack = new ArrayDeque<>(); //stack for redo
 
     public int getUndoSize(){
         return undoStack.size();
@@ -31,14 +31,14 @@ public class Timetravel {
         redoStack.push(state);
     }
 
-    public ActionState redo() throws NothingToDoException {
+    public ActionState redo() throws NothingToDoException { // se hace la logica de redo
         if (!redoStack.isEmpty()) {
-            ActionState state = redoStack.pop();
-            return state;
-        } else throw new NothingToDoException("REHACER");
+            return redoStack.pop();
+        }
+        throw new NothingToDoException("REHACER");
     }
 
-    public ActionState undo() throws NothingToDoException{
+    public ActionState undo() throws NothingToDoException{ // se hace la logica de undo
         if (!undoStack.isEmpty()) {
             ActionState state = undoStack.pop();
             return state;
@@ -47,9 +47,9 @@ public class Timetravel {
 
     public ActionState getUndoLastAction(){
         return undoStack.peek();
-    }
+    } // se obtiene el ultimo elemento de la pila de undo
     public ActionState getRedoLastAction(){
         return redoStack.peek();
-    }
+    } // se obtiene el ultimo elemento de la pila de redo
 }
 

@@ -9,7 +9,7 @@ import javafx.scene.paint.Color;
 public class FrontGraphicsController implements GraphicsController {
 
     private final GraphicsContext gc;
-
+    // los hacen los respectivos metodos para dibujar las figuras
     public FrontGraphicsController(GraphicsContext gc){
         this.gc = gc;
     }
