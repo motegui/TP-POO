@@ -53,5 +53,6 @@ public abstract class ColoredFigure extends Figure {
     public abstract void draw(String lineColor);
 
     public abstract boolean containsPoint(Point eventPoint);
+    public abstract String getFigureName();
 
 }

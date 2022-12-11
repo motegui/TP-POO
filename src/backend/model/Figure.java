@@ -20,7 +20,7 @@ public abstract class Figure {
     public abstract boolean containsPoint( Point eventPoint);
 
     public abstract void moveFigure(double x, double y);
-    public abstract String getFigureName();
+
 
 
 }
