@@ -10,7 +10,7 @@ public class Square extends Rectangle {
     }
     @Override
     public String getFigureName(){
-        return "square";
+        return "CUADRADO";
     }
 
 
@@ -27,6 +27,11 @@ public class Square extends Rectangle {
     public boolean containsPoint(Point eventPoint){
         return  eventPoint.getX() > getTopLeft().getX() && eventPoint.getX() < getBottomRight().getX() &&
                 eventPoint.getY() > getTopLeft().getY() && eventPoint.getY() < getBottomRight().getY();
+    }
+    @Override
+    public ColoredFigure copyFigure() {
+        return new Square(getGc(), getTopLeft(), size,
+                getLineColor().toString(), getFillColor().toString(), getLineWidth());
     }
 
 }

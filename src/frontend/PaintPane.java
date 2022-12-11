@@ -1,6 +1,9 @@
 package frontend;
 
 import backend.CanvasState;
+import backend.Timetravel;
+import backend.action.ActionState;
+import backend.action.ActionType;
 import backend.exception.NothingToDoException;
 import backend.model.*;
 import com.sun.javafx.scene.web.skin.HTMLEditorSkin;
@@ -90,6 +93,8 @@ public class PaintPane extends BorderPane {
 	// StatusBar
 	private StatusPane statusPane;
 
+	Timetravel timetravelInstance = new Timetravel();
+
 	public PaintPane(CanvasState canvasState, StatusPane statusPane) {
 		this.canvasState = canvasState;
 		this.statusPane = statusPane;
@@ -171,8 +176,10 @@ public class PaintPane extends BorderPane {
 				if (button.isSelected()){
 					figureFunction = buttonMap.get(button);
 					newFigure = figureFunction.apply(startPoint,endPoint);
+					timetravelInstance.add(new ActionState(ActionType.DRAW, canvasState.figures(), newFigure,clipboard));
 					canvasState.addFigure(newFigure);
 					startPoint = null;
+					updateLabels();
 					redrawCanvas();
 				}
 			}
@@ -181,6 +188,7 @@ public class PaintPane extends BorderPane {
 		canvas.setOnMouseClicked(event -> {
 			Point eventPoint = new Point(event.getX(), event.getY());
 			if (selectedFigure != null && cpyFormat.isSelected()) {
+				timetravelInstance.add(new ActionState(ActionType.COPY_FORMAT, canvasState.figures(), selectedFigure,clipboard));
 				Double auxWidth = selectedFigure.getLineWidth();
 				String auxLineColor = selectedFigure.getLineColor();
 				String auxFillColor = selectedFigure.getFillColor();
@@ -197,6 +205,7 @@ public class PaintPane extends BorderPane {
 				find(eventPoint);
 				statusPane.updateStatus((selectedFigure == null) ? "Ninguna figura encontrada." : label.append(selectedFigure).toString());
 			}
+			updateLabels();
 			redrawCanvas();
 		});
 
@@ -213,26 +222,34 @@ public class PaintPane extends BorderPane {
 
 		deleteButton.setOnAction(event -> {
 			if (selectedFigure != null) {
+				timetravelInstance.add(new ActionState(ActionType.DELETE, canvasState.figures(), selectedFigure,clipboard));
 				canvasState.deleteFigure(selectedFigure);
 				selectedFigure = null;
+				updateLabels();
 				redrawCanvas();
 			}
 		});
 
 		undoButton.setOnAction(event -> {
 			try {
-				canvasState.undoAction();
-
+				ActionState actionState = timetravelInstance.undo();
+				clipboard = actionState.getCopied();
+				timetravelInstance.addRedo(new ActionState(actionState.getActionType(), canvasState.figures(), actionState.getFigureAffected(), clipboard));
+				canvasState.update(actionState.figures());
+				updateLabels();
+				redrawCanvas();
 			} catch (NothingToDoException ex) {
 				showAlarm(ex.getMessage());
 			}
-			updateLabels();
-			redrawCanvas();
+
 		});
 		redoButton.setOnAction(event -> {
 			try {
-				canvasState.redoAction();
-
+				ActionState actionState = timetravelInstance.redo();
+				timetravelInstance.addUndo(new ActionState(actionState.getActionType(), canvasState.figures(), actionState.getFigureAffected(),clipboard));
+				canvasState.update(actionState.figures());
+				updateLabels();
+				redrawCanvas();
 			} catch (NothingToDoException ex) {
 				showAlarm(ex.getMessage());
 			}
@@ -247,6 +264,7 @@ public class PaintPane extends BorderPane {
 		fillColorPicker.setOnAction(event -> {
 			fillColor = fillColorPicker.getValue();
 			if (selectedFigure != null) {
+				timetravelInstance.add(new ActionState(ActionType.FILL_COLOR, canvasState.figures(), selectedFigure,clipboard));
 				selectedFigure.setFillColor(fillColor.toString());
 				redrawCanvas();
 			}
@@ -255,6 +273,7 @@ public class PaintPane extends BorderPane {
 		LineColorPicker.setOnAction(event -> {
 			lineColor = LineColorPicker.getValue();
 			if (selectedFigure != null) {
+				timetravelInstance.add(new ActionState(ActionType.LINE_COLOR, canvasState.figures(), selectedFigure,clipboard));
 				selectedFigure.setLineColor(LineColorPicker.getValue().toString());
 				redrawCanvas();
 			}
@@ -271,24 +290,30 @@ public class PaintPane extends BorderPane {
 
 		copy.setOnAction(event -> {
 			if (selectedFigure != null) {
+				timetravelInstance.add(new ActionState(ActionType.COPY, canvasState.figures(), selectedFigure,clipboard));
 				clipboard = selectedFigure;
+				updateLabels();
 				redrawCanvas();
 			}
 		});
 
 		paste.setOnAction(event -> {
 			if (clipboard != null) {
+				timetravelInstance.add(new ActionState(ActionType.PASTE, canvasState.figures(), selectedFigure,clipboard));
 				ColoredFigure figure = clipboard.copyFigure(new Point(canvas.getWidth() / 2, canvas.getHeight() / 2));
 				canvasState.addFigure(figure);
+				updateLabels();
 				redrawCanvas();
 			}
 		});
 
 		cut.setOnAction(event -> {
 			if (selectedFigure != null) {
+				timetravelInstance.add(new ActionState(ActionType.CUT, canvasState.figures(), selectedFigure,clipboard));
 				clipboard = selectedFigure;
 				canvasState.deleteFigure(selectedFigure);
 				selectedFigure = null;
+				updateLabels();
 				redrawCanvas();
 			}
 		});
@@ -318,13 +343,18 @@ public class PaintPane extends BorderPane {
 				selectedFigure = figure;
 			}
 		}
-
 	}
+
+//	private void updateLabels() {
+//		undoLabel.setText(String.format("%s [%d]", canvasState.getUndoSize() != 0 ? canvasState.getUndoLastAction() : "", canvasState.getUndoSize()));
+//		redoLabel.setText(String.format("[%d] %s", canvasState.getRedoSize(), canvasState.getRedoSize() != 0 ? canvasState.getRedoLastAction() : ""));
+//	}
 
 	private void updateLabels() {
-		undoLabel.setText(String.format("%s [%d]", canvasState.getUndoSize() != 0 ? canvasState.getUndoLastAction() : "", canvasState.getUndoSize()));
-		redoLabel.setText(String.format("[%d] %s", canvasState.getRedoSize(), canvasState.getRedoSize() != 0 ? canvasState.getRedoLastAction() : ""));
+		undoText.setText(String.format("%s [%d]", timetravelInstance.getUndoSize() != 0 ? timetravelInstance.getUndoLastAction() : "", timetravelInstance.getUndoSize()));
+		redoText.setText(String.format("[%d] %s", timetravelInstance.getRedoSize(), timetravelInstance.getRedoSize() != 0 ? timetravelInstance.getRedoLastAction() : ""));
 	}
+
 
 	private void showAlarm(String message) {
 		Alert alert = new Alert(Alert.AlertType.ERROR);

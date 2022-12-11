@@ -58,6 +58,6 @@ public class Ellipse extends ColoredFigure {
     }
     @Override
     public String getFigureName(){
-        return "ellipse";
+        return "ELIPSE";
     }
 }

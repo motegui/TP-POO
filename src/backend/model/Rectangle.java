@@ -59,6 +59,6 @@ public class Rectangle extends ColoredFigure {
     }
     @Override
     public String getFigureName(){
-        return "rectangle";
+        return "RECTANGULO";
     }
 }
