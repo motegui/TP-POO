@@ -8,6 +8,10 @@ public class Square extends Rectangle {
         super(gc, topLeft,new Point(topLeft.getX() +size, topLeft.getY()+size ), lineColor, fillColor,lineWidth);
         this.size=size;
     }
+    @Override
+    public String getFigureName(){
+        return "square";
+    }
 
 
     @Override

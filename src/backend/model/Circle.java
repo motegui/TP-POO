@@ -29,4 +29,10 @@ public class Circle extends Ellipse{
                 Math.pow(getCenterPoint().getY() - eventPoint.getY(), 2)) < getRadius();
     }
 
+    @Override
+    public String getFigureName(){
+        return "Circle";
+    }
+
+
 }
