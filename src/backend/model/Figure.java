@@ -13,12 +13,14 @@ public abstract class Figure {
     public GraphicsController getGc(){
         return gc;
     }
-    public  boolean figureBelongs(Point eventPoint){
+    public  boolean figureBelongs( Point eventPoint){
         return containsPoint(eventPoint);
     }
 
-    public abstract boolean containsPoint(Point eventPoint);
+    public abstract boolean containsPoint( Point eventPoint);
 
     public abstract void moveFigure(double x, double y);
+    public abstract String getFigureName();
+
 
 }

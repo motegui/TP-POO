@@ -29,4 +29,16 @@ public class Circle extends Ellipse{
                 Math.pow(getCenterPoint().getY() - eventPoint.getY(), 2)) < getRadius();
     }
 
+    @Override
+    public ColoredFigure copyFigure() {
+        return new Circle(getGc(), getCenterPoint(), getRadius(),
+                getLineColor().toString(), getFillColor().toString(), getLineWidth());
+    }
+
+    @Override
+    public String getFigureName(){
+        return "CIRCULO";
+    }
+
+
 }
