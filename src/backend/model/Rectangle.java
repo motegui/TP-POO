@@ -45,7 +45,6 @@ public class Rectangle extends ColoredFigure {
 
     @Override
     public boolean containsPoint(Point eventPoint){
-        System.out.println(String.format("%f > %f && %f < %f && %f > %f && %f < %f", eventPoint.getX(), topLeft.getX(), eventPoint.getX(), bottomRight.getX(), eventPoint.getY(), topLeft.getY(), eventPoint.getY(), bottomRight.getY()));
         return eventPoint.getX() > topLeft.getX() && eventPoint.getX() < bottomRight.getX() &&
                 eventPoint.getY() > topLeft.getY() && eventPoint.getY() < bottomRight.getY();
     }
