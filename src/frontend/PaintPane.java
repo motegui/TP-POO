@@ -8,12 +8,14 @@ import backend.exception.NothingToDoException;
 import backend.model.*;
 import com.sun.javafx.scene.web.skin.HTMLEditorSkin;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Cursor;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.KeyCode;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -111,11 +113,11 @@ public class PaintPane extends BorderPane {
 		setTop(shortcuts);
 		shortcuts.setPadding(new Insets(5));
 
-
 		HBox timetravel = new HBox(10);
 		timetravel.getChildren().addAll(undoText, undoButton, redoButton, redoText);
 		timetravel.setPadding(new Insets(5));
 		timetravel.setStyle("-fx-background-color: #999; -fx-alignment: center");
+
 
 		BorderPane topPane = new BorderPane();
 		topPane.setTop(shortcuts);
@@ -170,7 +172,7 @@ public class PaintPane extends BorderPane {
 			if (startPoint == null) {
 				return;
 			}
-			ColoredFigure newFigure = null;
+			ColoredFigure newFigure;
 			BiFunction<Point,Point,ColoredFigure> figureFunction;
 			for (ToggleButton button : figureButtonArr){
 				if (button.isSelected()){
@@ -210,8 +212,9 @@ public class PaintPane extends BorderPane {
 		});
 
 		canvas.setOnMouseDragged(event -> {
+			Point eventPoint = new Point(event.getX(), event.getY());
+			statusPane.updateStatus(String.format("{%s}", eventPoint));
 			if (selectionButton.isSelected() && selectedFigure != null) {
-				Point eventPoint = new Point(event.getX(), event.getY());
 				double diffX = (eventPoint.getX() - startPoint.getX()) / 100.0;
 				double diffY = (eventPoint.getY() - startPoint.getY()) / 100.0;
 				selectedFigure.moveFigure(100.0 * diffX, 100.0 * diffY);
@@ -318,6 +321,21 @@ public class PaintPane extends BorderPane {
 			}
 		});
 
+		this.setOnKeyPressed(keyEvent -> {
+			if (keyEvent.isControlDown()) {
+				if (keyEvent.getCode().equals(KeyCode.V))
+					paste.fire();
+				if (keyEvent.getCode().equals(KeyCode.C))
+					copy.fire();
+				if (keyEvent.getCode().equals(KeyCode.X))
+					cut.fire();
+				if(keyEvent.getCode().equals(KeyCode.Z))
+					undoButton.fire();
+				if(keyEvent.getCode().equals(KeyCode.Y))
+					redoButton.fire();
+			}
+		});
+
 		setLeft(buttonsBox);
 		setRight(canvas);
 	}
@@ -345,10 +363,6 @@ public class PaintPane extends BorderPane {
 		}
 	}
 
-//	private void updateLabels() {
-//		undoLabel.setText(String.format("%s [%d]", canvasState.getUndoSize() != 0 ? canvasState.getUndoLastAction() : "", canvasState.getUndoSize()));
-//		redoLabel.setText(String.format("[%d] %s", canvasState.getRedoSize(), canvasState.getRedoSize() != 0 ? canvasState.getRedoLastAction() : ""));
-//	}
 
 	private void updateLabels() {
 		undoText.setText(String.format("%s [%d]", timetravelInstance.getUndoSize() != 0 ? timetravelInstance.getUndoLastAction() : "", timetravelInstance.getUndoSize()));
