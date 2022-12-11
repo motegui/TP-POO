@@ -8,12 +8,14 @@ public class Rectangle extends ColoredFigure {
 
     private final double width;
     private final double height;
+
     public Rectangle(GraphicsController gc, Point topLeft, Point bottomRight, String lineColor, String fillColor, double lineWidth) {
         super(gc, lineColor, fillColor, lineWidth);
         this.topLeft = topLeft;
         this.bottomRight = bottomRight;
         this.width = bottomRight.getX()- topLeft.getX();
         this.height = topLeft.getY()- bottomRight.getY();
+
     }
 
     public Point getTopLeft() {
@@ -43,12 +45,20 @@ public class Rectangle extends ColoredFigure {
 
     @Override
     public boolean containsPoint(Point eventPoint){
-        return eventPoint.getX() > getTopLeft().getX() && eventPoint.getX() < getBottomRight().getX() &&
-                eventPoint.getY() > getTopLeft().getY() && eventPoint.getY() < getBottomRight().getY();
+        return eventPoint.getX() > topLeft.getX() && eventPoint.getX() < bottomRight.getX() &&
+                eventPoint.getY() > topLeft.getY() && eventPoint.getY() < bottomRight.getY();
     }
 
     @Override
+    public ColoredFigure copyFigure(Point centerPoint) {
+        return new Rectangle(getGc(), new Point(centerPoint.getX()-width/2, centerPoint.getY()+height/2),
+                new Point(centerPoint.getX()+width/2, centerPoint.getY()-height/2), getLineColor(), getFillColor(), getLineWidth());
+    }
     public ColoredFigure copyFigure() {
         return new Rectangle(getGc(), topLeft, bottomRight, getLineColor(), getFillColor(), getLineWidth());
+    }
+    @Override
+    public String getFigureName(){
+        return "RECTANGULO";
     }
 }

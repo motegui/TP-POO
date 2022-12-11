@@ -1,6 +1,9 @@
 package backend.model;
 
 import backend.CanvasState;
+import javafx.scene.canvas.GraphicsContext;
+
+import java.awt.*;
 
 public abstract class ColoredFigure extends Figure {
     private String lineColor, fillColor;
@@ -43,6 +46,10 @@ public abstract class ColoredFigure extends Figure {
     public void draw(){
         draw(lineColor);
     }
+
+    public abstract ColoredFigure copyFigure(Point centerPoint);
+    public abstract ColoredFigure copyFigure();
+
     public abstract void draw(String lineColor);
 
     public abstract boolean containsPoint(Point eventPoint);
