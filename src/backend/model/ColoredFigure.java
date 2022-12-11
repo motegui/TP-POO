@@ -1,9 +1,5 @@
 package backend.model;
 
-import backend.CanvasState;
-import javafx.scene.canvas.GraphicsContext;
-
-import java.awt.*;
 
 public abstract class ColoredFigure extends Figure {
     private String lineColor, fillColor;

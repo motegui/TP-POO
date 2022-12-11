@@ -1,6 +1,5 @@
 package frontend;
 
-import backend.model.ColoredFigure;
 import backend.model.GraphicsController;
 import backend.model.Point;
 import javafx.scene.canvas.GraphicsContext;

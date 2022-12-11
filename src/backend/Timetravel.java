@@ -3,11 +3,8 @@
 package backend;
 
 import java.util.ArrayDeque;
-import backend.action.ActionType;
 import backend.action.ActionState;
 import backend.exception.NothingToDoException;
-
-import javax.swing.*;
 
 public class Timetravel {
     private final ArrayDeque<ActionState> undoStack = new ArrayDeque<>(); //stack for undo
@@ -40,9 +37,9 @@ public class Timetravel {
 
     public ActionState undo() throws NothingToDoException{ // se hace la logica de undo
         if (!undoStack.isEmpty()) {
-            ActionState state = undoStack.pop();
-            return state;
-        } else throw new NothingToDoException("DESHACER");
+            return undoStack.pop();
+        }
+        throw new NothingToDoException("DESHACER");
     }
 
     public ActionState getUndoLastAction(){

@@ -1,13 +1,6 @@
 package backend;
 
-import backend.action.ActionType;
-//import backend.action.PaintAction;
-import backend.exception.NothingSelectedException;
-import backend.exception.NothingToDoException;
 import backend.model.ColoredFigure;
-import backend.model.Figure;
-
-import java.awt.*;
 import java.util.*;
 import java.util.List;
 

@@ -1,12 +1,10 @@
 package backend.action;
 
-import backend.CanvasState;
 import backend.model.ColoredFigure;
 
-import java.net.CookieHandler;
 import java.util.ArrayList;
 import java.util.List;
-
+//ActionState es "una foto" del estado actual del programa que contiene lo necesario para las funcionalidades a implementar.
 public class ActionState {
     private final ActionType actionType;
     private final List<ColoredFigure> list = new ArrayList<>();

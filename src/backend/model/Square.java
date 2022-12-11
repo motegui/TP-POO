@@ -31,7 +31,7 @@ public class Square extends Rectangle {
     @Override
     public ColoredFigure copyFigure() { // se copia la figura
         return new Square(getGc(), getTopLeft(), size,
-                getLineColor().toString(), getFillColor().toString(), getLineWidth());
+                getLineColor(), getFillColor(), getLineWidth());
     }
 
 }

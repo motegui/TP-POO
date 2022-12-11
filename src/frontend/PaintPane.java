@@ -335,16 +335,7 @@ public class PaintPane extends BorderPane {
 
 		this.setOnKeyPressed(keyEvent -> { //se asignan las teclas de atajo
 			if (keyEvent.isControlDown()) {
-				if (keyEvent.getCode().equals(KeyCode.V))
-					paste.fire();
-				if (keyEvent.getCode().equals(KeyCode.C))
-					copy.fire();
-				if (keyEvent.getCode().equals(KeyCode.X))
-					cut.fire();
-				if(keyEvent.getCode().equals(KeyCode.Z))
-					undoButton.fire();
-				if(keyEvent.getCode().equals(KeyCode.Y))
-					redoButton.fire();
+				keyCodeMap.get(keyEvent.getCode()).fire();
 			}
 		});
 
@@ -383,7 +374,6 @@ public class PaintPane extends BorderPane {
 		redoLabel.setText(String.format("%s", timetravelInstance.getRedoSize() != 0 ? timetravelInstance.getRedoLastAction() : ""));
 
 	}
-
 
 	private void showAlarm(String message) {
 		Alert alert = new Alert(Alert.AlertType.ERROR);
