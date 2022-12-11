@@ -4,9 +4,7 @@
 //
 //public class Timetravel<T>{
 //    private ArrayDeque<T> undoStack = new ArrayDeque<>();
-//
 //    private ArrayDeque<T> redoStack = new ArrayDeque<>();
-//
 //    public void add(T state){
 //        undoStack.push(state);
 //        redoStack.clear();

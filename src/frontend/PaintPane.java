@@ -16,7 +16,11 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
+
+import java.util.HashMap;
+import java.util.Map;
 import java.util.ResourceBundle;
+import java.util.function.BiFunction;
 
 
 public class PaintPane extends BorderPane {
@@ -116,6 +120,7 @@ public class PaintPane extends BorderPane {
 		shortcuts.setStyle("-fx-background-color: #999");
 		//estilo de los botones
 		ToggleButton[] toolsArr = {selectionButton, rectangleButton, circleButton, squareButton, ellipseButton, deleteButton, cpyFormat};
+		ToggleButton[] figureButtonArr = {rectangleButton,circleButton,squareButton,ellipseButton};
 		ToggleGroup tools = new ToggleGroup();
 		for (ToggleButton tool : toolsArr) { //itera por los botones para setear su tamaño
 			tool.setMinWidth(90);
@@ -138,63 +143,40 @@ public class PaintPane extends BorderPane {
 		buttonsBox.setPrefWidth(100);
 		gc.setLineWidth(sliderWidth);
 		FrontGraphicsController fgc = new FrontGraphicsController(gc);
+		Map<ToggleButton, BiFunction<Point,Point, ColoredFigure>> buttonMap = new HashMap<ToggleButton, BiFunction<Point,Point, ColoredFigure>>() {{
+			put(figureButtonArr[0], (startPoint,endPoint) -> new Rectangle(fgc, startPoint, endPoint, lineColor.toString(), fillColor.toString(), sliderWidth));
+			put(figureButtonArr[1], (startPoint,endPoint) -> new Circle(fgc, startPoint, Math.abs(endPoint.getX() - startPoint.getX()),
+					lineColor.toString(), fillColor.toString(), sliderWidth));
+			put(figureButtonArr[2], (startPoint,endPoint) -> new Square(fgc, startPoint, Math.abs(endPoint.getX() - startPoint.getX()),
+					lineColor.toString(), fillColor.toString(), sliderWidth));
+			put(figureButtonArr[3], (startPoint,endPoint) -> new Ellipse(fgc,
+					(new Point(Math.abs(endPoint.x + startPoint.x) / 2, (Math.abs((endPoint.y + startPoint.y)) / 2))),
+							Math.abs(endPoint.x - startPoint.x),
+							Math.abs(endPoint.y - startPoint.y), lineColor.toString(), fillColor.toString(), sliderWidth));
 
+		}};
 
 		canvas.setOnMousePressed(event -> {
 			startPoint = new Point(event.getX(), event.getY());
 		});
 
-//		canvas.setOnMouseReleased(event -> {
-//			Point endPoint = new Point(event.getX(), event.getY());
-//			if (startPoint == null) {
-//				return;
-//			}
-//			if(endPoint.getX() < startPoint.getX() || endPoint.getY() < startPoint.getY()){
-//				return;
-//			}
-//			ColoredFigure newFigure = null;
-//			ToggleButton[] buttons = new ToggleButton[]{ellipseButton,circleButton,squareButton,rectangleButton};
-//			for(ToggleButton b : buttons){
-//			if(b.isSelected()){
-//				newFigure = b.draw( );
-//				//cuando se dibuje una figura aca voy a tener que hacer la logica de redo aca
-//			}
-//			if(newFigure != null){
-//				canvasState.addFigure(newFigure);
-//				// aca sigue yendo lo del undo
-//			}
-//		}
-//			startPoint = null;
-//			redrawCanvas();
-//		});
-		//BORRAR DESDE ACA
 		canvas.setOnMouseReleased(event -> {
 			Point endPoint = new Point(event.getX(), event.getY());
 			if (startPoint == null) {
 				return;
 			}
 			ColoredFigure newFigure = null;
-			if (rectangleButton.isSelected()) {
-				newFigure = new Rectangle(fgc, startPoint, endPoint, lineColor.toString(), fillColor.toString(), sliderWidth);
-			} else if (circleButton.isSelected()) {
-				double circleRadius = Math.abs(endPoint.getX() - startPoint.getX());
-				newFigure = new Circle(fgc, startPoint, circleRadius, lineColor.toString(), fillColor.toString(), sliderWidth);
-			} else if (squareButton.isSelected()) {
-				double size = Math.abs(endPoint.getX() - startPoint.getX());
-				newFigure = new Square(fgc, startPoint, size, lineColor.toString(), fillColor.toString(), sliderWidth);
-			} else if (ellipseButton.isSelected()) {
-				Point centerPoint = new Point(Math.abs(endPoint.x + startPoint.x) / 2, (Math.abs((endPoint.y + startPoint.y)) / 2));
-				double sMayorAxis = Math.abs(endPoint.x - startPoint.x);
-				double sMinorAxis = Math.abs(endPoint.y - startPoint.y);
-				newFigure = new Ellipse(fgc, centerPoint, sMayorAxis, sMinorAxis, lineColor.toString(), fillColor.toString(), sliderWidth);
-			} else {
-				return;
+			BiFunction<Point,Point,ColoredFigure> figureFunction;
+			for (ToggleButton button : figureButtonArr){
+				if (button.isSelected()){
+					figureFunction = buttonMap.get(button);
+					newFigure = figureFunction.apply(startPoint,endPoint);
+					canvasState.addFigure(newFigure);
+					startPoint = null;
+					redrawCanvas();
+				}
 			}
-			canvasState.addFigure(newFigure);
-			startPoint = null;
-			redrawCanvas();
 		});
-		//HASTA ACA
 
 		canvas.setOnMouseClicked(event -> {
 			Point eventPoint = new Point(event.getX(), event.getY());
@@ -334,7 +316,6 @@ public class PaintPane extends BorderPane {
 		for (ColoredFigure figure : canvasState.figures()) {
 			if (figure.figureBelongs(eventPoint)) {
 				selectedFigure = figure;
-				return;
 			}
 		}
 
