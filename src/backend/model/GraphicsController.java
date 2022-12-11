@@ -10,4 +10,5 @@ public interface GraphicsController {
 
     void drawSquare(Point topLeft, double size, String lineColor, String fillColor, double lineWidth);
 
+
 }

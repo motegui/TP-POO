@@ -8,11 +8,25 @@ public class Square extends Rectangle {
         super(gc, topLeft,new Point(topLeft.getX() +size, topLeft.getY()+size ), lineColor, fillColor,lineWidth);
         this.size=size;
     }
+    @Override
+    public String getFigureName(){
+        return "square";
+    }
 
 
     @Override
     public String toString() {
         return String.format("Cuadrado [ %s , %s ]", getTopLeft(), getBottomRight());
+    }
+
+    @Override
+    public void draw(String lineColor) {
+        getGc().drawSquare(super.getTopLeft(), size, lineColor,getFillColor(),getLineWidth());
+    }
+    @Override
+    public boolean containsPoint(Point eventPoint){
+        return  eventPoint.getX() > getTopLeft().getX() && eventPoint.getX() < getBottomRight().getX() &&
+                eventPoint.getY() > getTopLeft().getY() && eventPoint.getY() < getBottomRight().getY();
     }
 
 }

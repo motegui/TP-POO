@@ -1,5 +1,9 @@
 package backend.model;
 
+import javafx.scene.canvas.GraphicsContext;
+
+import java.awt.*;
+
 public class Ellipse extends ColoredFigure {
 
     protected final Point centerPoint;
@@ -29,4 +33,31 @@ public class Ellipse extends ColoredFigure {
         return sMinorAxis;
     }
 
+    @Override
+    public void moveFigure(double x, double y){
+        centerPoint.movePoint(x, y);
+    }
+
+    @Override
+    public void draw(String lineColor) {
+        getGc().drawEllipse(centerPoint, sMayorAxis, sMinorAxis, lineColor,getFillColor(),getLineWidth());
+    }
+    @Override
+    public boolean containsPoint(Point eventPoint){
+        return ((Math.pow(eventPoint.getX() - centerPoint.getX(), 2) / Math.pow(sMayorAxis, 2)) +
+                (Math.pow(eventPoint.getY() - centerPoint.getY(), 2) / Math.pow(sMinorAxis, 2))) <= 0.30;
+    }
+
+    @Override
+    public ColoredFigure copyFigure(Point centerPoint) {
+        return new Ellipse(getGc(), centerPoint , sMayorAxis, sMinorAxis, getLineColor(), getFillColor(), getLineWidth());
+    }
+
+    public ColoredFigure copyFigure() {
+        return new Ellipse(getGc(), centerPoint , sMayorAxis, sMinorAxis, getLineColor(), getFillColor(), getLineWidth());
+    }
+    @Override
+    public String getFigureName(){
+        return "ellipse";
+    }
 }
