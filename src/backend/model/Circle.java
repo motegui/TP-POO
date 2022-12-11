@@ -32,7 +32,7 @@ public class Circle extends Ellipse{
     @Override
     public ColoredFigure copyFigure() {
         return new Circle(getGc(), getCenterPoint(), getRadius(),
-                getLineColor().toString(), getFillColor().toString(), getLineWidth());
+                getLineColor(), getFillColor(), getLineWidth());
     }
 
     @Override

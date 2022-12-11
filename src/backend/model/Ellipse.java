@@ -1,9 +1,5 @@
 package backend.model;
 
-import javafx.scene.canvas.GraphicsContext;
-
-import java.awt.*;
-
 public class Ellipse extends ColoredFigure {
 
     protected final Point centerPoint;
@@ -29,9 +25,6 @@ public class Ellipse extends ColoredFigure {
         return sMayorAxis;
     }
 
-    public double getsMinorAxis() {
-        return sMinorAxis;
-    }
 
     @Override
     public void moveFigure(double x, double y){

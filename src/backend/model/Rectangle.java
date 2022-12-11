@@ -1,6 +1,5 @@
 package backend.model;
 
-import backend.CanvasState;
 
 public class Rectangle extends ColoredFigure {
 

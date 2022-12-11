@@ -22,6 +22,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.ResourceBundle;
@@ -31,52 +32,53 @@ import java.util.function.BiFunction;
 public class PaintPane extends BorderPane {
 
 	// BackEnd
-	CanvasState canvasState;
+	private final CanvasState canvasState;
 
 	private static final String FIGURE_SELECTION_LINE_COLOR_HEX = "#FF0000";
 
 
 	// Canvas y relacionados
-	Canvas canvas = new Canvas(800, 600);
-	GraphicsContext gc = canvas.getGraphicsContext2D();
-	Color lineColor = Color.BLACK;
-	Color fillColor = Color.YELLOW;
-	Double sliderWidth = 1.0;
+	private final Canvas canvas = new Canvas(800, 600);
+	private final GraphicsContext gc = canvas.getGraphicsContext2D();
+	private Color lineColor = Color.BLACK;
+	private Color fillColor = Color.YELLOW;
+	private Double sliderWidth = 1.0;
 
-	// Botones Barra Izquierda
-	ToggleButton selectionButton = new ToggleButton("Seleccionar");
-	ToggleButton rectangleButton = new ToggleButton("Rectángulo");
-	ToggleButton circleButton = new ToggleButton("Círculo");
-	ToggleButton squareButton = new ToggleButton("Cuadrado");
-	ToggleButton ellipseButton = new ToggleButton("Elipse");
-	ToggleButton deleteButton = new ToggleButton("Borrar");
-	ToggleButton cpyFormat = new ToggleButton("Cop.Form.");
+	// Botones Barra Izquierda (Vbox)
+	private final ToggleButton selectionButton = new ToggleButton("Seleccionar");
+	private final ToggleButton rectangleButton = new ToggleButton("Rectángulo");
+	private final ToggleButton circleButton = new ToggleButton("Círculo");
+	private final ToggleButton squareButton = new ToggleButton("Cuadrado");
+	private final ToggleButton ellipseButton = new ToggleButton("Elipse");
+	private final ToggleButton deleteButton = new ToggleButton("Borrar");
+	private final ToggleButton cpyFormat = new ToggleButton("Cop.Form.");
+	private final Slider borderSize = new Slider(1.0, 50.0, 26.0);
+	private final ColorPicker LineColorPicker = new ColorPicker(lineColor); //paneles de color seteados por default como se pedia
+	private final ColorPicker fillColorPicker = new ColorPicker(fillColor);
 
+	//Botones de Barra superior (Hbox)
+	// Se crean los botones con sus respectivos iconos
+	private final String undoIconPath = ResourceBundle.getBundle(HTMLEditorSkin.class.getName()).getString("undoIcon");
+	private final Image undoIcon = new Image(HTMLEditorSkin.class.getResource(undoIconPath).toString());
+	private final Button undoButton = new Button("Deshacer", new ImageView(undoIcon));
+	private final String redoIconPath = ResourceBundle.getBundle(HTMLEditorSkin.class.getName()).getString("redoIcon");
+	private final Image redoIcon = new Image(HTMLEditorSkin.class.getResource(redoIconPath).toString());
 
-	Slider borderSize = new Slider(1.0, 50.0, 26.0);
-	ColorPicker LineColorPicker = new ColorPicker(lineColor); //paneles de color seteados por default como se pedia
-	ColorPicker fillColorPicker = new ColorPicker(fillColor);
+	private final Button redoButton = new Button("Rehacer", new ImageView(redoIcon));
+	private final String cutIconPath = ResourceBundle.getBundle(HTMLEditorSkin.class.getName()).getString("cutIcon");
+	private final Image cutIcon = new Image(HTMLEditorSkin.class.getResource(cutIconPath).toString());
+	private final Button cut = new Button("Cortar", new ImageView(cutIcon));
+	private final String copyIconPath = ResourceBundle.getBundle(HTMLEditorSkin.class.getName()).getString("copyIcon");
+	private final Image copyIcon = new Image(HTMLEditorSkin.class.getResource(copyIconPath).toString());
+	private final Button copy = new Button("Copiar", new ImageView(copyIcon));
+	private final String pasteIconPath = ResourceBundle.getBundle(HTMLEditorSkin.class.getName()).getString("pasteIcon");
+	private final Image pasteIcon = new Image(HTMLEditorSkin.class.getResource(pasteIconPath).toString());
+	private final Button paste = new Button("Pegar", new ImageView(pasteIcon));
+	private final Label undoLabel = new Label("");
 
-	String undoIconPath = ResourceBundle.getBundle(HTMLEditorSkin.class.getName()).getString("undoIcon");
-	Image undoIcon = new Image(HTMLEditorSkin.class.getResource(undoIconPath).toString());
-	Button undoButton = new Button("Deshacer", new ImageView(undoIcon));
-	String redoIconPath = ResourceBundle.getBundle(HTMLEditorSkin.class.getName()).getString("redoIcon");
-	Image redoIcon = new Image(HTMLEditorSkin.class.getResource(redoIconPath).toString());
-
-	Button redoButton = new Button("Rehacer", new ImageView(redoIcon));
-
-
-	String cutIconPath = ResourceBundle.getBundle(HTMLEditorSkin.class.getName()).getString("cutIcon");
-	Image cutIcon = new Image(HTMLEditorSkin.class.getResource(cutIconPath).toString());
-	Button cut = new Button("Cortar", new ImageView(cutIcon));
-
-	String copyIconPath = ResourceBundle.getBundle(HTMLEditorSkin.class.getName()).getString("copyIcon");
-	Image copyIcon = new Image(HTMLEditorSkin.class.getResource(copyIconPath).toString());
-	Button copy = new Button("Copiar", new ImageView(copyIcon));
-	String pasteIconPath = ResourceBundle.getBundle(HTMLEditorSkin.class.getName()).getString("pasteIcon");
-	Image pasteIcon = new Image(HTMLEditorSkin.class.getResource(pasteIconPath).toString());
-
-	Button paste = new Button("Pegar", new ImageView(pasteIcon));
+	private final Label undoCounter = new Label("0");
+	private final Label redoLabel = new Label("");
+	private final Label redoCounter = new Label("0");
 
 
 	// Dibujar una figura
@@ -85,50 +87,46 @@ public class PaintPane extends BorderPane {
 	// Seleccionar una figura
 	private ColoredFigure selectedFigure = null;
 
-	Label undoLabel = new Label("");
 
-	Label undoCounter = new Label("0");
-	Label redoLabel = new Label("");
-	Label redoCounter = new Label("0");
 
 	private ColoredFigure clipboard;
 
 
 	// StatusBar
-	private StatusPane statusPane;
+	private final StatusPane statusPane;
 
-	Timetravel timetravelInstance = new Timetravel();
+	private final Timetravel timetravelInstance = new Timetravel();
 
 	public PaintPane(CanvasState canvasState, StatusPane statusPane) {
 		this.canvasState = canvasState;
 		this.statusPane = statusPane;
 
-
+		//guardamos todos los botonoes de la Hbox
 		Button[] shortcut = {cut, copy, paste, undoButton, redoButton};
 		HBox shortcuts = new HBox(10);
 
-		shortcuts.getChildren().addAll(cut, copy, paste);
+		shortcuts.getChildren().addAll(cut, copy, paste);  // agregamos los botones de cortar, copiar y pegar
 		for (Button tool : shortcut) { //itera por los botones para setear su tamaño
 			tool.setMinWidth(90);
 			tool.setCursor(Cursor.HAND);
 		}
-		setTop(shortcuts);
+
 		shortcuts.setPadding(new Insets(5));
 
-		HBox timetravel = new HBox(10);
-		undoLabel.setMinWidth(300);
+		HBox timetravel = new HBox(10);  //creamos la Hbox para los botones de timetravel (undo y redo y sus respectivos lables)
+		undoLabel.setMinWidth(300); //seteamos y alineamos el tamaño de los labels
 		undoLabel.setAlignment(Pos.CENTER_RIGHT);
 		redoLabel.setMinWidth(300);
 
-		timetravel.getChildren().addAll( undoLabel, undoCounter, undoButton, redoButton, redoCounter, redoLabel);
+		timetravel.getChildren().addAll( undoLabel, undoCounter, undoButton, redoButton, redoCounter, redoLabel); // agregamos los botones y labels a la Hbox
 		timetravel.setPadding(new Insets(5));
 		timetravel.setStyle("-fx-background-color: #999; -fx-alignment: center");
 
 
-		BorderPane topPane = new BorderPane();
-		topPane.setTop(shortcuts);
-		topPane.setBottom(timetravel);
-		setTop(topPane);
+		BorderPane topPane = new BorderPane(); // creamos el BorderPane para la barra superior
+		topPane.setTop(shortcuts); // agregamos la Hbox de los botones de cortar, copiar y pegar
+		topPane.setBottom(timetravel); // agregamos la Hbox de los botones de timetravel
+		setTop(topPane); // agregamos el BorderPane a la barra superior
 
 		shortcuts.setStyle("-fx-background-color: #999");
 		//estilo de los botones
@@ -144,18 +142,19 @@ public class PaintPane extends BorderPane {
 		VBox buttonsBox = new VBox(10);
 
 
-		buttonsBox.getChildren().addAll(toolsArr);
-		borderSize.setShowTickMarks(true);
-		borderSize.setShowTickLabels(true);
-		buttonsBox.getChildren().addAll(new Text("Borde"), borderSize, LineColorPicker);
-		buttonsBox.getChildren().addAll(new Text("Relleno"), fillColorPicker);
+		buttonsBox.getChildren().addAll(toolsArr); //agrega todos los botones del toolArr VBox
+		borderSize.setShowTickMarks(true); // muestra los ticks en el slider
+		borderSize.setShowTickLabels(true); // muestra los labels en el slider
+		buttonsBox.getChildren().addAll(new Text("Borde"), borderSize, LineColorPicker); //agrega el slider y el colorpicker al VBox
+		buttonsBox.getChildren().addAll(new Text("Relleno"), fillColorPicker); //agrega el colorpicker al VBox
 
 
 		buttonsBox.setPadding(new Insets(5));
 		buttonsBox.setStyle("-fx-background-color: #999");
 		buttonsBox.setPrefWidth(100);
 		gc.setLineWidth(sliderWidth);
-		FrontGraphicsController fgc = new FrontGraphicsController(gc);
+		FrontGraphicsController fgc = new FrontGraphicsController(gc); //crea un nuevo controlador de graficos
+
 		Map<ToggleButton, BiFunction<Point,Point, ColoredFigure>> buttonMap = new HashMap<ToggleButton, BiFunction<Point,Point, ColoredFigure>>() {{
 			put(figureButtonArr[0], (startPoint,endPoint) -> new Rectangle(fgc, startPoint, endPoint, lineColor.toString(), fillColor.toString(), sliderWidth));
 			put(figureButtonArr[1], (startPoint,endPoint) -> new Circle(fgc, startPoint, Math.abs(endPoint.getX() - startPoint.getX()),
@@ -163,15 +162,15 @@ public class PaintPane extends BorderPane {
 			put(figureButtonArr[2], (startPoint,endPoint) -> new Square(fgc, startPoint, Math.abs(endPoint.getX() - startPoint.getX()),
 					lineColor.toString(), fillColor.toString(), sliderWidth));
 			put(figureButtonArr[3], (startPoint,endPoint) -> new Ellipse(fgc,
-					(new Point(Math.abs(endPoint.x + startPoint.x) / 2, (Math.abs((endPoint.y + startPoint.y)) / 2))),
-							Math.abs(endPoint.x - startPoint.x),
-							Math.abs(endPoint.y - startPoint.y), lineColor.toString(), fillColor.toString(), sliderWidth));
+					(new Point(Math.abs(endPoint.getX() + startPoint.getX()) / 2, (Math.abs((endPoint.getY() + startPoint.getY())) / 2))),
+							Math.abs(endPoint.getX() - startPoint.getX()),
+							Math.abs(endPoint.getY() - startPoint.getY()), lineColor.toString(), fillColor.toString(), sliderWidth));
 
-		}};
+		}}; //crea un mapa con los botones de figuras y sus respectivas funciones
 
 		canvas.setOnMousePressed(event -> {
 			startPoint = new Point(event.getX(), event.getY());
-		});
+		}); //cuando se presiona el mouse se guarda el punto de inicio
 
 		canvas.setOnMouseReleased(event -> {
 			Point endPoint = new Point(event.getX(), event.getY());
@@ -182,34 +181,34 @@ public class PaintPane extends BorderPane {
 			BiFunction<Point,Point,ColoredFigure> figureFunction;
 			for (ToggleButton button : figureButtonArr){
 				if (button.isSelected()){
-					figureFunction = buttonMap.get(button);
+					figureFunction = buttonMap.get(button);//obtiene la funcion de la figura seleccionada
 					newFigure = figureFunction.apply(startPoint,endPoint);
-					timetravelInstance.add(new ActionState(ActionType.DRAW, canvasState.figures(), newFigure,clipboard));
-					canvasState.addFigure(newFigure);
+					timetravelInstance.add(new ActionState(ActionType.DRAW, canvasState.figures(), newFigure,clipboard)); //agrega el estado al timetravel
+					canvasState.addFigure(newFigure);//agrega la figura al canvas
 					startPoint = null;
-					updateLabels();
-					redrawCanvas();
+					updateLabels(); // actualiza los labels de undo y redo
+					redrawCanvas(); //redibuja el canvas
 				}
 			}
-		});
+		}); // cuando se suelta el mouse se guarda el punto final y se crea la figura
 
 		canvas.setOnMouseClicked(event -> {
 			Point eventPoint = new Point(event.getX(), event.getY());
-			if (selectedFigure != null && cpyFormat.isSelected()) {
-				timetravelInstance.add(new ActionState(ActionType.COPY_FORMAT, canvasState.figures(), selectedFigure,clipboard));
-				Double auxWidth = selectedFigure.getLineWidth();
+			if (selectedFigure != null && cpyFormat.isSelected()) { //Se copia el fomrato de una figura valida
+				timetravelInstance.add(new ActionState(ActionType.COPY_FORMAT, canvasState.figures(), selectedFigure,clipboard)); //se agrega al timetravel(undo/redo)
+				double auxWidth = selectedFigure.getLineWidth(); //getters
 				String auxLineColor = selectedFigure.getLineColor();
 				String auxFillColor = selectedFigure.getFillColor();
-				ColoredFigure aux = selectedFigure;
-				find(eventPoint);
-				selectedFigure.setFillColor(auxFillColor);
+				ColoredFigure aux = selectedFigure; // se crea un auxiliar para no perder la referencia y que no se cambie la seleccionada
+				find(eventPoint); //se busca la figura a la que se le aplica el fomrato (find cambia selected figure)
+				selectedFigure.setFillColor(auxFillColor);//setters a la figura a aplicarse el formato
 				selectedFigure.setLineColor(auxLineColor);
 				selectedFigure.setLineWidth(auxWidth);
-				selectedFigure = aux;
-				selectionButton.setSelected(true);
-			} else if (selectionButton.isSelected()) {
+				selectedFigure = aux; // se vuelve a seleccionar la figura original
+				selectionButton.setSelected(true); //se pone el boton de seleccionar como seleccionado
+			} else if (selectionButton.isSelected()) { //Se selecciona una figura si es que existe una en esas coordenadas
 				StringBuilder label = new StringBuilder("Se seleccionó: ");
-				selectedFigure = null;
+				selectedFigure = null; // se pone en null por si quiere hacer click afuera para deseleccionar
 				find(eventPoint);
 				statusPane.updateStatus((selectedFigure == null) ? "Ninguna figura encontrada." : label.append(selectedFigure).toString());
 			}
@@ -217,7 +216,7 @@ public class PaintPane extends BorderPane {
 			redrawCanvas();
 		});
 
-		canvas.setOnMouseDragged(event -> {
+		canvas.setOnMouseDragged(event -> {//se mueve la figura seleccionada
 			Point eventPoint = new Point(event.getX(), event.getY());
 			statusPane.updateStatus(String.format("{%s}", eventPoint));
 			if (selectionButton.isSelected() && selectedFigure != null) {
@@ -229,7 +228,7 @@ public class PaintPane extends BorderPane {
 			}
 		});
 
-		deleteButton.setOnAction(event -> {
+		deleteButton.setOnAction(event -> { //se borra la figura seleccionada
 			if (selectedFigure != null) {
 				timetravelInstance.add(new ActionState(ActionType.DELETE, canvasState.figures(), selectedFigure,clipboard));
 				canvasState.deleteFigure(selectedFigure);
@@ -239,7 +238,7 @@ public class PaintPane extends BorderPane {
 			}
 		});
 
-		undoButton.setOnAction(event -> {
+		undoButton.setOnAction(event -> { //se hace undo
 			try {
 				ActionState actionState = timetravelInstance.undo();
 				clipboard = actionState.getCopied();
@@ -252,7 +251,7 @@ public class PaintPane extends BorderPane {
 			}
 
 		});
-		redoButton.setOnAction(event -> {
+		redoButton.setOnAction(event -> { //se hace redo
 			try {
 				ActionState actionState = timetravelInstance.redo();
 				timetravelInstance.addUndo(new ActionState(actionState.getActionType(), canvasState.figures(), actionState.getFigureAffected(),clipboard));
@@ -267,10 +266,9 @@ public class PaintPane extends BorderPane {
 
 
 		});
-		//actualiza las labels
 
-
-		fillColorPicker.setOnAction(event -> {
+		//
+		fillColorPicker.setOnAction(event -> { //se cambia el color de relleno
 			fillColor = fillColorPicker.getValue();
 			if (selectedFigure != null) {
 				timetravelInstance.add(new ActionState(ActionType.FILL_COLOR, canvasState.figures(), selectedFigure,clipboard));
@@ -279,7 +277,7 @@ public class PaintPane extends BorderPane {
 			}
 		});
 
-		LineColorPicker.setOnAction(event -> {
+		LineColorPicker.setOnAction(event -> { //se cambia el color de linea
 			lineColor = LineColorPicker.getValue();
 			if (selectedFigure != null) {
 				timetravelInstance.add(new ActionState(ActionType.LINE_COLOR, canvasState.figures(), selectedFigure,clipboard));
@@ -288,7 +286,7 @@ public class PaintPane extends BorderPane {
 			}
 		});
 
-		borderSize.setOnMouseDragged(event -> {
+		borderSize.setOnMouseDragged(event -> { //se cambia el tamaño de la linea
 			sliderWidth = borderSize.getValue();
 			if (selectedFigure != null) {
 				selectedFigure.setLineWidth(sliderWidth);
@@ -297,16 +295,15 @@ public class PaintPane extends BorderPane {
 		});
 
 
-		copy.setOnAction(event -> {
+		copy.setOnAction(event -> { //se copia la figura seleccionada
 			if (selectedFigure != null) {
 				timetravelInstance.add(new ActionState(ActionType.COPY, canvasState.figures(), selectedFigure,clipboard));
 				clipboard = selectedFigure;
 				updateLabels();
-				redrawCanvas();
 			}
 		});
 
-		paste.setOnAction(event -> {
+		paste.setOnAction(event -> { //se pega la figura copiada
 			if (clipboard != null) {
 				timetravelInstance.add(new ActionState(ActionType.PASTE, canvasState.figures(), selectedFigure,clipboard));
 				ColoredFigure figure = clipboard.copyFigure(new Point(canvas.getWidth() / 2, canvas.getHeight() / 2));
@@ -316,7 +313,7 @@ public class PaintPane extends BorderPane {
 			}
 		});
 
-		cut.setOnAction(event -> {
+		cut.setOnAction(event -> { //se corta la figura seleccionada
 			if (selectedFigure != null) {
 				timetravelInstance.add(new ActionState(ActionType.CUT, canvasState.figures(), selectedFigure,clipboard));
 				clipboard = selectedFigure;
@@ -327,18 +324,18 @@ public class PaintPane extends BorderPane {
 			}
 		});
 
-		this.setOnKeyPressed(keyEvent -> {
+
+		Map<KeyCode, Button> keyCodeMap = new EnumMap<KeyCode, Button>(KeyCode.class){{ //se asignan los botones a las teclas
+			put(KeyCode.V, paste);
+			put(KeyCode.C, copy);
+			put(KeyCode.X, cut);
+			put(KeyCode.Z, undoButton);
+			put(KeyCode.Y, redoButton);
+		}};
+
+		this.setOnKeyPressed(keyEvent -> { //se asignan las teclas de atajo
 			if (keyEvent.isControlDown()) {
-				if (keyEvent.getCode().equals(KeyCode.V))
-					paste.fire();
-				if (keyEvent.getCode().equals(KeyCode.C))
-					copy.fire();
-				if (keyEvent.getCode().equals(KeyCode.X))
-					cut.fire();
-				if(keyEvent.getCode().equals(KeyCode.Z))
-					undoButton.fire();
-				if(keyEvent.getCode().equals(KeyCode.Y))
-					redoButton.fire();
+				keyCodeMap.get(keyEvent.getCode()).fire();
 			}
 		});
 
@@ -361,23 +358,22 @@ public class PaintPane extends BorderPane {
 
 	}
 
-	public void find(Point eventPoint) {
+	public void find(Point eventPoint) { //metodo que sirve para encontrar la figura que se ha seleccionado
 		for (ColoredFigure figure : canvasState.figures()) {
-			if (figure.figureBelongs(eventPoint)) {
+			if (figure.containsPoint(eventPoint)) {
 				selectedFigure = figure;
 			}
 		}
 	}
 
 
-	private void updateLabels() {
+	private void updateLabels() { //metodo para actualizar los lables del undo y redo
 		undoLabel.setText(String.format("%s", timetravelInstance.getUndoSize() != 0 ? timetravelInstance.getUndoLastAction() : ""));
 		undoCounter.setText(String.format("[%d]", timetravelInstance.getUndoSize()));
 		redoCounter.setText(String.format("[%d]", timetravelInstance.getRedoSize()));
 		redoLabel.setText(String.format("%s", timetravelInstance.getRedoSize() != 0 ? timetravelInstance.getRedoLastAction() : ""));
 
 	}
-
 
 	private void showAlarm(String message) {
 		Alert alert = new Alert(Alert.AlertType.ERROR);

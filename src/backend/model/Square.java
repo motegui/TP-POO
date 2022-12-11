@@ -2,7 +2,7 @@ package backend.model;
 
 public class Square extends Rectangle {
 
-    private double size;
+    private final double size;
 
     public Square(GraphicsController gc, Point topLeft, double size, String lineColor, String fillColor, double lineWidth) {
         super(gc, topLeft,new Point(topLeft.getX() +size, topLeft.getY()+size ), lineColor, fillColor,lineWidth);
@@ -24,14 +24,14 @@ public class Square extends Rectangle {
         getGc().drawSquare(super.getTopLeft(), size, lineColor,getFillColor(),getLineWidth());
     }
     @Override
-    public boolean containsPoint(Point eventPoint){
+    public boolean containsPoint(Point eventPoint){ // se fija si el punto esta dentro del cuadrado
         return  eventPoint.getX() > getTopLeft().getX() && eventPoint.getX() < getBottomRight().getX() &&
                 eventPoint.getY() > getTopLeft().getY() && eventPoint.getY() < getBottomRight().getY();
     }
     @Override
-    public ColoredFigure copyFigure() {
+    public ColoredFigure copyFigure() { // se copia la figura
         return new Square(getGc(), getTopLeft(), size,
-                getLineColor().toString(), getFillColor().toString(), getLineWidth());
+                getLineColor(), getFillColor(), getLineWidth());
     }
 
 }
